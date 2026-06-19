@@ -1,8 +1,28 @@
-# React + Vite
+# Würth Elektronik Network
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Zentrale Plattform für Studenten, Praktikanten und Mitarbeiter von Würth Elektronik, um sich zu vernetzen, auszutauschen und Karrieremöglichkeiten zu entdecken.
 
-Currently, two official plugins are available:
+## Features
+- **News Feed:** Unternehmensupdates und Events
+- **Live Channels:** Discord-ähnliche Chaträume für direkten Austausch (Realtime)
+- **Career Portal:** Praktika und Jobs direkt bei Würth Elektronik
+- **HR Dashboard:** Analysen und Metriken für den Bereich HR/Talent Management
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Technologie
+- React + Vite
+- Tailwind CSS (via custom index.css)
+- Supabase (PostgreSQL, Auth, Realtime WebSockets)
+- Lucide React (Icons), Recharts (Charts)
+
+## Lokales Setup
+1. Repository klonen
+2. `npm install`
+3. Erstelle eine `.env.local` Datei mit deinen Supabase-Zugangsdaten:
+   ```env
+   VITE_SUPABASE_URL="https://DEIN_PROJEKT.supabase.co"
+   VITE_SUPABASE_ANON_KEY="dein-anon-key"
+   ```
+4. `npm run dev` starten
+
+## Datenbank Setup
+Das Datenbankschema befindet sich in `supabase/migrations/schema.sql`. Dieses Skript muss im Supabase SQL Editor ausgeführt werden, um die Tabellen und Berechtigungen zu erstellen.
