@@ -104,11 +104,6 @@ export default function Channels() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Hash size={16} /> {ch.name}
               </div>
-              {ch.unread > 0 && (
-                <span style={{ background: 'var(--accent-red)', color: 'white', borderRadius: '50%', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 'bold' }}>
-                  {ch.unread}
-                </span>
-              )}
             </button>
           ))}
         </div>
@@ -122,7 +117,7 @@ export default function Channels() {
             <Hash size={20} className="text-secondary" /> {activeChannel?.name || 'Loading...'}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)' }}>
-            <Users size={18} /> 42 Online
+            <Users size={18} /> Team
           </div>
         </div>
 

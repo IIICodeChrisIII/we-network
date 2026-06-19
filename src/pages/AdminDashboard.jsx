@@ -16,11 +16,14 @@ export default function AdminDashboard() {
     // Fetch profiles
     const { data: profiles } = await supabase.from('profiles').select('*');
     if (profiles) {
-      setStudents(profiles.filter(p => p.role === 'user' || p.status === 'student'));
+      const studentsList = profiles.filter(p => p.role === 'user' || p.status === 'student');
+      setStudents(studentsList);
       setStats(prev => ({
         ...prev,
         total: profiles.length,
-        interns: profiles.filter(p => p.status === 'intern').length
+        talentPool: profiles.filter(p => p.status !== 'employee').length,
+        interns: profiles.filter(p => p.status === 'intern').length,
+        employees: profiles.filter(p => p.status === 'employee').length
       }));
     }
 
@@ -34,18 +37,18 @@ export default function AdminDashboard() {
   };
 
   const activityData = [
-    { name: 'Jan', active: 120 },
-    { name: 'Feb', active: 180 },
-    { name: 'Mar', active: 250 },
-    { name: 'Apr', active: 310 },
-    { name: 'May', active: 450 },
-    { name: 'Jun', active: stats.total || 620 },
+    { name: 'Jan', active: Math.floor(stats.total * 0.2) },
+    { name: 'Feb', active: Math.floor(stats.total * 0.4) },
+    { name: 'Mar', active: Math.floor(stats.total * 0.6) },
+    { name: 'Apr', active: Math.floor(stats.total * 0.8) },
+    { name: 'May', active: Math.floor(stats.total * 0.9) },
+    { name: 'Jun', active: stats.total },
   ];
 
   const conversionData = [
-    { name: 'Student', count: students.length || 1250 },
-    { name: 'Intern', count: stats.interns || 180 },
-    { name: 'Employee', count: 45 },
+    { name: 'Student', count: students.length },
+    { name: 'Intern', count: stats.interns },
+    { name: 'Employee', count: stats.employees || 0 },
   ];
 
   return (

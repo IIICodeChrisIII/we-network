@@ -101,10 +101,10 @@ export default function News() {
                 <button className="text-secondary" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <ThumbsUp size={18} /> {post.likes || 0}
                 </button>
-                <button className="text-secondary" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <MessageSquare size={18} /> 0
+                <button className="text-secondary" style={{ display: 'flex', alignItems: 'center', gap: '6px' }} onClick={() => alert('Comments feature coming soon!')}>
+                  <MessageSquare size={18} /> Comment
                 </button>
-                <button className="text-secondary" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <button className="text-secondary" style={{ display: 'flex', alignItems: 'center', gap: '6px' }} onClick={() => alert('Share feature coming soon!')}>
                   <Share2 size={18} /> Share
                 </button>
               </div>
