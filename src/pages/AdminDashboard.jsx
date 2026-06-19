@@ -52,79 +52,80 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="page-content animate-fade-in">
-      <div className="page-header flex-between">
-        <div>
-          <h1 className="page-title">HR & Analytics Dashboard</h1>
-          <p className="page-description">Overview of student engagement and ROI tracking.</p>
+    <div className="page-content animate-fade-in" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div style={{ width: '100%', maxWidth: '1400px' }}>
+        <div className="page-header flex-between" style={{ marginBottom: '40px' }}>
+          <div>
+            <h1 className="page-title" style={{ fontSize: '2.4rem' }}>HR & Analytics Dashboard</h1>
+            <p className="page-description" style={{ fontSize: '1.1rem' }}>Overview of student engagement and ROI tracking.</p>
+          </div>
+          <button className="btn btn-secondary" style={{ borderRadius: 'var(--border-radius-pill)', padding: '12px 24px', fontSize: '1rem' }}>Export Report</button>
         </div>
-        <button className="btn btn-primary">Export Report</button>
-      </div>
 
-      <div className="stats-grid">
-        <div className="card stat-card delay-100">
+      <div className="stats-grid" style={{ gap: '32px', marginBottom: '48px' }}>
+        <div className="card stat-card delay-100" style={{ padding: '32px' }}>
           <div className="flex-between">
             <span className="stat-label">Total Users</span>
-            <Users className="text-accent" />
+            <Users className="text-accent" size={24} />
           </div>
-          <span className="stat-value">{stats.total}</span>
+          <span className="stat-value" style={{ fontSize: '3rem' }}>{stats.total}</span>
           <span className="text-secondary text-sm">Registered profiles</span>
         </div>
         
-        <div className="card stat-card delay-200">
+        <div className="card stat-card delay-200" style={{ padding: '32px' }}>
           <div className="flex-between">
             <span className="stat-label">In Talent Pool</span>
-            <TrendingUp className="text-accent" />
+            <TrendingUp className="text-accent" size={24} />
           </div>
-          <span className="stat-value">{stats.talentPool}</span>
+          <span className="stat-value" style={{ fontSize: '3rem' }}>{stats.talentPool}</span>
           <span className="text-secondary text-sm">Active candidates</span>
         </div>
 
-        <div className="card stat-card delay-300">
+        <div className="card stat-card delay-300" style={{ padding: '32px' }}>
           <div className="flex-between">
             <span className="stat-label">Internships / Hires</span>
-            <BookOpen className="text-accent" />
+            <BookOpen className="text-accent" size={24} />
           </div>
-          <span className="stat-value">{stats.interns}</span>
+          <span className="stat-value" style={{ fontSize: '3rem' }}>{stats.interns}</span>
           <span className="text-secondary text-sm">Status converted</span>
         </div>
 
-        <div className="card stat-card delay-300">
+        <div className="card stat-card delay-300" style={{ padding: '32px' }}>
           <div className="flex-between">
             <span className="stat-label">Active in Channels</span>
-            <MessageSquare className="text-accent" />
+            <MessageSquare className="text-accent" size={24} />
           </div>
-          <span className="stat-value">{stats.messages}</span>
+          <span className="stat-value" style={{ fontSize: '3rem' }}>{stats.messages}</span>
           <span className="text-secondary text-sm">Total messages sent</span>
         </div>
       </div>
 
-      <div className="charts-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '32px' }}>
-        <div className="card">
-          <h3 style={{ marginBottom: '16px' }}>Platform Activity Over Time</h3>
-          <div style={{ height: '300px' }}>
+      <div className="charts-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', marginBottom: '48px' }}>
+        <div className="card" style={{ padding: '32px' }}>
+          <h3 style={{ marginBottom: '24px', fontSize: '1.4rem' }}>Platform Activity Over Time</h3>
+          <div style={{ height: '400px' }}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={activityData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                <XAxis dataKey="name" stroke="#888" />
-                <YAxis stroke="#888" />
-                <Tooltip contentStyle={{ backgroundColor: '#161618', border: '1px solid #333' }} />
-                <Line type="monotone" dataKey="active" stroke="#cc0000" strokeWidth={3} />
+                <XAxis dataKey="name" stroke="#888" tick={{fontSize: 14}} />
+                <YAxis stroke="#888" tick={{fontSize: 14}} />
+                <Tooltip contentStyle={{ backgroundColor: '#161618', border: '1px solid #333', fontSize: '1.1rem' }} />
+                <Line type="monotone" dataKey="active" stroke="#cc0000" strokeWidth={4} />
               </LineChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="card">
-          <h3 style={{ marginBottom: '16px' }}>User Funnel (ROI)</h3>
-          <div style={{ height: '300px' }}>
+        <div className="card" style={{ padding: '32px' }}>
+          <h3 style={{ marginBottom: '24px', fontSize: '1.4rem' }}>User Funnel (ROI)</h3>
+          <div style={{ height: '400px' }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={conversionData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                <XAxis dataKey="name" stroke="#888" />
-                <YAxis stroke="#888" />
-                <Tooltip contentStyle={{ backgroundColor: '#161618', border: '1px solid #333' }} />
-                <Bar dataKey="count" fill="#cc0000" radius={[4, 4, 0, 0]} />
+                <XAxis dataKey="name" stroke="#888" tick={{fontSize: 14}} />
+                <YAxis stroke="#888" tick={{fontSize: 14}} />
+                <Tooltip contentStyle={{ backgroundColor: '#161618', border: '1px solid #333', fontSize: '1.1rem' }} />
+                <Bar dataKey="count" fill="#cc0000" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -180,6 +181,7 @@ export default function AdminDashboard() {
             </tbody>
           </table>
         </div>
+      </div>
       </div>
     </div>
   );

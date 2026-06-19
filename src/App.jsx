@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Sidebar from './components/Sidebar';
+import Navbar from './components/Sidebar';
 import Login from './pages/Login';
 import AdminDashboard from './pages/AdminDashboard';
 import News from './pages/News';
@@ -12,7 +12,7 @@ import Profile from './pages/Profile';
 function AppLayout({ children }) {
   return (
     <div className="app-container">
-      <Sidebar />
+      <Navbar />
       <main className="main-content">
         {children}
       </main>

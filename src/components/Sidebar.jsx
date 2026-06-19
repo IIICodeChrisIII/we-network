@@ -1,51 +1,73 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Newspaper, MessageSquare, Briefcase, Users, User, BarChart2, LogOut } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
-export default function Sidebar() {
+export default function Navbar() {
+  const [profile, setProfile] = useState(null);
   const navigate = useNavigate();
 
-  const handleLogout = () => {
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const fetchProfile = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data } = await supabase.from('profiles').select('first_name, last_name').eq('id', user.id).single();
+      if (data) setProfile(data);
+    }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     navigate('/login');
   };
 
   const navItems = [
-    { name: 'Neues', path: '/', icon: <Newspaper size={20} /> },
-    { name: 'Channels', path: '/channels', icon: <MessageSquare size={20} /> },
-    { name: 'Karriere', path: '/career', icon: <Briefcase size={20} /> },
-    { name: 'Kontakte', path: '/contacts', icon: <Users size={20} /> },
-    { name: 'Profil', path: '/profile', icon: <User size={20} /> },
-    { name: 'Analytics (HR)', path: '/admin/dashboard', icon: <BarChart2 size={20} /> },
+    { name: 'Feed', path: '/', icon: <Newspaper size={16} /> },
+    { name: 'Channels', path: '/channels', icon: <MessageSquare size={16} /> },
+    { name: 'Kontakte', path: '/contacts', icon: <Users size={16} /> },
+    { name: 'Karriere', path: '/career', icon: <Briefcase size={16} /> },
+    { name: 'Analytics', path: '/admin/dashboard', icon: <BarChart2 size={16} /> },
   ];
 
+  const initials = profile 
+    ? `${(profile.first_name || '')[0] || ''}${(profile.last_name || '')[0] || ''}`.toUpperCase()
+    : '?';
+
   return (
-    <div className="sidebar glass-panel">
-      <div className="sidebar-header">
-        <div className="brand">
-          <span className="brand-logo">W</span>
-          <span className="brand-text">Würth Elektronik <span className="text-accent">Net</span></span>
-        </div>
-      </div>
-      
-      <div className="sidebar-nav">
+    <nav className="navbar">
+      <NavLink to="/" className="navbar-brand">
+        <span className="navbar-brand-accent">WE</span>
+        <span style={{ fontWeight: 400, marginLeft: '4px' }}>Network</span>
+      </NavLink>
+
+      <div className="navbar-nav">
         {navItems.map((item) => (
-          <NavLink 
-            key={item.path} 
+          <NavLink
+            key={item.path}
             to={item.path}
-            className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+            className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}
+            end={item.path === '/'}
           >
             {item.icon}
-            <span className="nav-label">{item.name}</span>
+            {item.name}
           </NavLink>
         ))}
       </div>
 
-      <div className="sidebar-footer">
-        <button className="nav-item logout-btn" onClick={handleLogout}>
-          <LogOut size={20} />
-          <span className="nav-label">Logout</span>
+      <div className="navbar-actions">
+        <NavLink to="/profile" className="navbar-user">
+          <div className="navbar-avatar">{initials}</div>
+          <span style={{ fontSize: '0.85rem', fontWeight: 500, color: 'var(--text-secondary)' }}>
+            {profile ? profile.first_name : 'Profil'}
+          </span>
+        </NavLink>
+        <button className="navbar-logout" onClick={handleLogout}>
+          <LogOut size={16} />
         </button>
       </div>
-    </div>
+    </nav>
   );
 }

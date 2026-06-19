@@ -23,43 +23,53 @@ export default function Career() {
   };
 
   return (
-    <div className="page-content animate-fade-in">
-      <div className="page-header flex-between">
-        <div>
-          <h1 className="page-title">Karriere</h1>
-          <p className="page-description">Find your next opportunity at Würth Elektronik.</p>
+    <div className="page-content animate-fade-in" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div style={{ width: '100%', maxWidth: '1000px' }}>
+        <div className="page-header flex-between">
+          <div>
+            <h1 className="page-title">Career Opportunities</h1>
+            <p className="page-description">Find your next opportunity at Würth Elektronik.</p>
+          </div>
+          <button className="btn btn-secondary" style={{ borderRadius: 'var(--border-radius-pill)' }}>
+            Filter Options
+          </button>
         </div>
-        <button className="btn btn-secondary">Filter Options</button>
-      </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '24px' }}>
-        {loading ? <p>Loading jobs...</p> : jobs.map(job => (
-          <div key={job.id} className="card" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-            <div style={{ marginBottom: 'auto' }}>
-              <div className="flex-between" style={{ marginBottom: '16px' }}>
-                <span style={{ 
-                  background: job.type === 'internship' ? 'rgba(59,130,246,0.1)' : job.type === 'working_student' ? 'rgba(16,185,129,0.1)' : 'rgba(204,0,0,0.1)', 
-                  color: job.type === 'internship' ? '#60a5fa' : job.type === 'working_student' ? '#34d399' : 'var(--accent-red)', 
-                  padding: '4px 10px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: '600', textTransform: 'uppercase'
-                }}>
-                  {job.type.replace('_', ' ')}
-                </span>
-                <span className="text-secondary" style={{ fontSize: '0.9rem' }}>{job.department}</span>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px' }}>
+          {loading ? <p style={{ color: 'var(--text-muted)' }}>Loading jobs...</p> : jobs.map(job => (
+            <div key={job.id} className="card card-accent" style={{ display: 'flex', alignItems: 'center', gap: '24px', padding: '32px' }}>
+              <div style={{ flex: 1 }}>
+                <div className="flex-between" style={{ marginBottom: '12px' }}>
+                  <h3 style={{ fontSize: '1.4rem', fontWeight: 700, color: 'var(--text-primary)' }}>{job.title}</h3>
+                  <span className="badge badge-green">Actively Hiring</span>
+                </div>
+                
+                <h4 style={{ color: 'var(--accent-red)', fontSize: '1.05rem', fontWeight: 600, marginBottom: '16px' }}>
+                  Würth Elektronik HQ
+                </h4>
+                
+                <p style={{ color: 'var(--text-secondary)', marginBottom: '24px', lineHeight: '1.6', fontSize: '1rem', maxWidth: '800px' }}>
+                  Join our team for an exciting opportunity working on cutting-edge hardware and software integration in our {job.department || 'engineering'} department.
+                </p>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '24px', color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 500 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><MapPin size={16} /> {job.location}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Clock size={16} /> Flexible Hours</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Briefcase size={16} /> 
+                    <span style={{ textTransform: 'capitalize' }}>{job.type.replace('_', ' ')}</span>
+                  </div>
+                </div>
               </div>
               
-              <h3 style={{ fontSize: '1.25rem', marginBottom: '12px', lineHeight: '1.4' }}>{job.title}</h3>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><MapPin size={16} /> {job.location}</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Clock size={16} /> Flexible Hours</div>
+              <div style={{ paddingLeft: '24px', borderLeft: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <button className="btn btn-primary" style={{ padding: '12px 28px', fontSize: '1rem' }}>
+                  Apply Now
+                </button>
               </div>
             </div>
-            
-            <button className="btn btn-primary" style={{ width: '100%', marginTop: '24px' }}>
-              Apply Now <ArrowRight size={16} />
-            </button>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
