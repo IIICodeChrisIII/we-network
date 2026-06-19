@@ -30,7 +30,7 @@ export default function Login() {
         if (error) throw error;
         
         if (data.user) {
-          await supabase.from('profiles').insert({
+          const { error: profileError } = await supabase.from('profiles').insert({
             id: data.user.id,
             first_name: firstName,
             last_name: lastName,
@@ -38,8 +38,13 @@ export default function Login() {
             degree: degree,
             semester: semester
           });
+          if (profileError) {
+            console.error("Profile creation error:", profileError);
+            alert(`Registered successfully, but could not save profile details: ${profileError.message}`);
+          } else {
+            alert('Registration successful! Please sign in.');
+          }
         }
-        alert('Registration successful! Please sign in.');
         setIsRegistering(false);
       } else {
         const { error } = await supabase.auth.signInWithPassword({

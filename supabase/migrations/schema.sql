@@ -72,6 +72,9 @@ create policy "Messages viewable by everyone." on public.messages for select usi
 create policy "Authenticated users can insert messages." on public.messages for insert with check (auth.uid() = user_id);
 
 create policy "Posts viewable by everyone." on public.posts for select using (true);
+create policy "Authenticated users can insert posts." on public.posts for insert with check (auth.uid() = author_id);
+create policy "Authenticated users can update their own posts." on public.posts for update using (auth.uid() = author_id);
+
 create policy "Jobs viewable by everyone." on public.jobs for select using (true);
 
 -- Insert demo channels
