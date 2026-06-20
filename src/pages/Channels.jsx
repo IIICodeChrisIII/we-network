@@ -177,8 +177,12 @@ export default function Channels() {
             
             return (
             <div key={msg.id} style={{ display: 'flex', gap: '16px' }}>
-              <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: isSpecialist ? 'var(--gradient-primary)' : 'var(--bg-tertiary)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1.05rem', color: isSpecialist ? 'white' : 'var(--text-primary)' }}>
-                {avatar}
+              <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: isSpecialist ? 'var(--gradient-primary)' : 'var(--bg-tertiary)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1.05rem', color: isSpecialist ? 'white' : 'var(--text-primary)', overflow: 'hidden' }}>
+                {msg.profiles?.avatar_url ? (
+                  <img src={msg.profiles.avatar_url} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  avatar
+                )}
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginBottom: '6px' }}>

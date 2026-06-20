@@ -38,11 +38,36 @@ export default function Profile() {
 
       <div className="card" style={{ marginBottom: '24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '24px', marginBottom: '32px' }}>
-          <div style={{ width: '100px', height: '100px', borderRadius: '50%', background: 'var(--bg-primary)', border: '2px dashed var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
-            <User size={40} />
+          <div style={{ width: '100px', height: '100px', borderRadius: '50%', background: 'var(--bg-primary)', border: '2px dashed var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', overflow: 'hidden' }}>
+            {profile.avatar_url ? (
+              <img src={profile.avatar_url} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              <User size={40} />
+            )}
           </div>
           <div>
-            <button className="btn btn-secondary" style={{ marginBottom: '8px' }}>Upload Photo</button>
+            <label className="btn btn-secondary" style={{ marginBottom: '8px', cursor: 'pointer', display: 'inline-block' }}>
+              Upload Photo
+              <input 
+                type="file" 
+                accept="image/png, image/jpeg, image/webp" 
+                style={{ display: 'none' }} 
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (file) {
+                    if (file.size > 2 * 1024 * 1024) {
+                      alert("File is too large (max 2MB)");
+                      return;
+                    }
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      setProfile(prev => ({ ...prev, avatar_url: reader.result }));
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                }} 
+              />
+            </label>
             <p className="text-secondary" style={{ fontSize: '0.85rem' }}>JPG or PNG, max 2MB</p>
           </div>
         </div>
