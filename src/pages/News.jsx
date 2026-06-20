@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { ThumbsUp, MessageSquare, Share2, Calendar, Send } from 'lucide-react';
+import { ThumbsUp, MessageSquare, Share2, Calendar, Send, Zap } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { triggerRewardEvent } from '../lib/rewardEvents';
 import CertificateBadges from '../components/CertificateBadges';
 
 export default function News() {
@@ -8,6 +9,7 @@ export default function News() {
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
   const [loading, setLoading] = useState(true);
+  const [isChallenge, setIsChallenge] = useState(false);
   
   const [currentUserProfile, setCurrentUserProfile] = useState(null);
   const [expandedPost, setExpandedPost] = useState(null);
@@ -69,13 +71,21 @@ export default function News() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return alert("Log in to post");
 
-    const { error } = await supabase.from('posts').insert([
-      { title: newTitle, content: newContent, author_id: user.id }
-    ]);
+    const postData = { 
+      title: newTitle, 
+      content: newContent, 
+      author_id: user.id,
+      type: isChallenge ? 'challenge' : 'news'
+    };
+
+    // Note: If setup_challenges.sql is run, we could also pass reward_nodes here.
+
+    const { error } = await supabase.from('posts').insert([postData]);
     
     if (!error) {
       setNewTitle('');
       setNewContent('');
+      setIsChallenge(false);
       fetchPosts();
     }
   };
@@ -110,12 +120,18 @@ export default function News() {
 
     if (!error) {
       fetchPosts(); // Refresh to get real IDs
+      
+      // Farm Nodes Logic: If it's a tech challenge, award nodes!
+      const post = posts.find(p => p.id === postId);
+      if (post && post.type === 'challenge') {
+        triggerRewardEvent('challenge_solved', { userId: user.id, challengeId: postId });
+      }
     } else {
       alert("Error posting comment. Did you run the SQL script?");
     }
   };
 
-  const canPost = currentUserProfile && currentUserProfile.status !== 'student';
+  const canPost = currentUserProfile && (currentUserProfile.status !== 'student' || currentUserProfile.role === 'startup');
 
   const renderAvatar = (profile, size = 48) => {
     if (profile?.avatar_url) {
@@ -180,15 +196,22 @@ export default function News() {
             const commentsCount = post.comments?.length || 0;
 
             return (
-              <div key={post.id} className="card">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
+              <div key={post.id} className="card" style={post.type === 'challenge' ? { border: '2px solid var(--accent-red)', position: 'relative' } : {}}>
+                {post.type === 'challenge' && (
+                  <div style={{ position: 'absolute', top: '-12px', left: '20px', background: 'var(--accent-red)', color: '#fff', padding: '4px 12px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px', boxShadow: '0 4px 12px rgba(226, 0, 26, 0.3)' }}>
+                    <Zap size={14} fill="#fff" />
+                    TECH CHALLENGE — Lösen für 50 WE-Nodes!
+                  </div>
+                )}
+                
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px', marginTop: post.type === 'challenge' ? '12px' : '0' }}>
                   {renderAvatar(post.profiles)}
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                       <CertificateBadges profile={post.profiles} max={3} />
                       <h3 style={{ fontSize: '1.05rem', fontWeight: 600 }}>{post.profiles?.first_name || 'User'} {post.profiles?.last_name || ''}</h3>
-                      <span className={`badge ${post.profiles?.status === 'employee' ? 'badge-red' : 'badge-blue'}`}>
-                        {post.profiles?.status === 'employee' ? 'Mitarbeiter' : (post.profiles?.status || 'Student')}
+                      <span className={`badge ${post.profiles?.role === 'startup' ? 'badge-green' : (post.profiles?.status === 'employee' ? 'badge-red' : 'badge-blue')}`}>
+                        {post.profiles?.role === 'startup' ? 'Startup' : (post.profiles?.status === 'employee' ? 'Mitarbeiter' : (post.profiles?.status || 'Student'))}
                       </span>
                     </div>
                     <span className="text-secondary" style={{ fontSize: '0.85rem' }}>
