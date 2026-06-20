@@ -11,6 +11,7 @@ create table public.profiles (
   semester text,
   status text default 'student', -- student, intern, employee
   role text default 'user', -- user, admin, specialist
+  is_verified_student boolean default false,
   avatar_url text,
   bio text,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
@@ -30,6 +31,17 @@ create table public.messages (
   channel_id uuid references public.channels on delete cascade not null,
   user_id uuid references public.profiles on delete cascade not null,
   content text not null,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- User Documents
+create table public.user_documents (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references public.profiles on delete cascade not null,
+  type text not null, -- 'student_verification' | 'certificate'
+  file_name text not null,
+  file_data text not null,
+  status text default 'pending', -- 'pending' | 'approved' | 'rejected'
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
@@ -94,6 +106,7 @@ alter table public.jobs enable row level security;
 alter table public.student_skills enable row level security;
 alter table public.student_modules enable row level security;
 alter table public.talent_profiles enable row level security;
+alter table public.user_documents enable row level security;
 
 -- Create basic policies (For development: allow authenticated users to read/write)
 create policy "Public profiles are viewable by everyone." on public.profiles for select using (true);
@@ -127,6 +140,15 @@ create policy "Talent profiles viewable by everyone." on public.talent_profiles 
 create policy "Users can insert their own talent profile." on public.talent_profiles for insert with check (auth.uid() = student_id);
 create policy "Users can update their own talent profile." on public.talent_profiles for update using (auth.uid() = student_id);
 
+-- User Documents policies
+create policy "Users can insert their own documents." on public.user_documents for insert with check (auth.uid() = user_id);
+create policy "Users can view their own documents." on public.user_documents for select using (auth.uid() = user_id);
+create policy "Admins can view all documents." on public.user_documents for select using (
+  exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
+);
+create policy "Admins can update documents." on public.user_documents for update using (
+  exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
+);
 -- Insert demo channels
 insert into public.channels (name, description) values
 ('general', 'Allgemeine Diskussionen'),

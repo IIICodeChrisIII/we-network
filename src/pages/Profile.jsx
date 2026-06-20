@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { User, Save, Briefcase, ChevronDown, X, Search, UserPlus, Award, CheckCircle } from 'lucide-react';
+import { User, Save, Briefcase, ChevronDown, X, Search, UserPlus, Award, CheckCircle, FileText, UploadCloud, Clock, AlertCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { GERMAN_UNIVERSITIES, getLogoUrl, findUniversity } from '../lib/universities';
 import NodeBalance from '../components/NodeBalance';
@@ -27,9 +27,13 @@ function UniLogo({ domain, name, size = 22 }) {
 }
 
 export default function Profile() {
-  const [profile, setProfile] = useState({ first_name: '', last_name: '', bio: '', status: 'student', university: '' });
+  const [profile, setProfile] = useState({ first_name: '', last_name: '', bio: '', status: 'student', university: '', degree: '', semester: '' });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  const [documents, setDocuments] = useState([]);
+  const [uploadingDoc, setUploadingDoc] = useState(false);
+  const [docType, setDocType] = useState('student_verification');
 
   // University dropdown state
   const [uniSearch, setUniSearch] = useState('');
@@ -38,7 +42,7 @@ export default function Profile() {
   const uniInputRef = useRef(null);
 
   useEffect(() => {
-    fetchProfile();
+    fetchProfileAndDocs();
   }, []);
 
   // Close dropdown on outside click
@@ -53,13 +57,45 @@ export default function Profile() {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  const fetchProfile = async () => {
+  const fetchProfileAndDocs = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
       const { data, error } = await supabase.from('profiles').select('*').eq('id', user.id).single();
       if (!error && data) setProfile(data);
+
+      const { data: docs } = await supabase.from('user_documents').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
+      if (docs) setDocuments(docs);
     }
     setLoading(false);
+  };
+
+  const handleDocumentUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { alert('File is too large (max 5MB)'); return; }
+    setUploadingDoc(true);
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { error } = await supabase.from('user_documents').insert({
+          user_id: user.id,
+          type: docType,
+          file_name: file.name,
+          file_data: reader.result
+        });
+        if (!error) {
+          alert('Document uploaded successfully! It is now pending admin review.');
+          const { data: docs } = await supabase.from('user_documents').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
+          if (docs) setDocuments(docs);
+        } else {
+          console.error(error);
+          alert('Error uploading document');
+        }
+      }
+      setUploadingDoc(false);
+    };
+    reader.readAsDataURL(file);
   };
 
   const saveProfile = async () => {
@@ -286,6 +322,18 @@ export default function Profile() {
           </div>
         </div>
 
+        {/* ── Degree & Semester ─────────────────────────────── */}
+        <div className="form-row" style={{ marginTop: '16px' }}>
+          <div className="input-group">
+            <label className="input-label">Studienfach / Degree</label>
+            <input type="text" className="input-field" placeholder="z.B. Informatik" value={profile.degree || ''} onChange={e => setProfile({ ...profile, degree: e.target.value })} />
+          </div>
+          <div className="input-group">
+            <label className="input-label">Semester</label>
+            <input type="number" min="1" className="input-field" placeholder="z.B. 3" value={profile.semester || ''} onChange={e => setProfile({ ...profile, semester: e.target.value })} />
+          </div>
+        </div>
+
         {/* ── Career Timeline ─────────────────────────────── */}
         <div style={{ marginTop: '32px', marginBottom: '16px' }}>
           <h3 style={{ fontSize: '1.1rem', marginBottom: '16px', color: 'var(--text-primary)' }}>Your Würth Journey</h3>
@@ -352,7 +400,7 @@ export default function Profile() {
       </div>
 
       {/* ── Zertifikate & Status ──────────────────────────── */}
-      <div className="card">
+      <div className="card" style={{ marginBottom: '24px' }}>
         <div className="flex-between" style={{ marginBottom: '20px' }}>
           <div>
             <h3 style={{ fontSize: '1.15rem', marginBottom: '2px' }}>Zertifikate &amp; Status</h3>
@@ -386,6 +434,66 @@ export default function Profile() {
                 </div>
               );
             })}
+          </div>
+        )}
+      </div>
+
+      {/* ── Dokumenten-Upload ──────────────────────────── */}
+      <div className="card">
+        <div style={{ marginBottom: '20px' }}>
+          <h3 style={{ fontSize: '1.15rem', marginBottom: '2px' }}>Dokumenten-Upload</h3>
+          <p className="text-secondary" style={{ fontSize: '0.85rem' }}>
+            Lade Nachweise hoch, um Badges oder Zertifikate freizuschalten. Die Überprüfung erfolgt durch einen Admin.
+          </p>
+        </div>
+
+        <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', marginBottom: '24px', flexWrap: 'wrap' }}>
+          <div className="input-group" style={{ flex: '1', minWidth: '200px' }}>
+            <label className="input-label">Dokumententyp</label>
+            <select className="input-field" value={docType} onChange={e => setDocType(e.target.value)}>
+              <option value="student_verification">Nachweis: Immatrikulationsbescheinigung</option>
+              <option value="certificate">Zertifikat (Event, Workshop, etc.)</option>
+            </select>
+          </div>
+          <div className="input-group" style={{ flex: '1', minWidth: '200px', display: 'flex', alignItems: 'flex-end' }}>
+            <label className="btn btn-secondary" style={{ width: '100%', display: 'flex', justifyContent: 'center', cursor: 'pointer' }}>
+              {uploadingDoc ? 'Uploading...' : <><UploadCloud size={18} style={{ marginRight: '8px' }}/> Datei auswählen & hochladen</>}
+              <input
+                type="file"
+                accept="application/pdf, image/png, image/jpeg, image/webp"
+                style={{ display: 'none' }}
+                onChange={handleDocumentUpload}
+                disabled={uploadingDoc}
+              />
+            </label>
+          </div>
+        </div>
+
+        {documents.length > 0 && (
+          <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
+            <h4 style={{ fontSize: '0.95rem', marginBottom: '12px', color: 'var(--text-secondary)' }}>Deine Uploads</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {documents.map(doc => (
+                <div key={doc.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', background: 'var(--bg-secondary)', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border-color)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{ padding: '8px', background: 'var(--bg-tertiary)', borderRadius: '8px', color: 'var(--text-muted)' }}>
+                      <FileText size={20} />
+                    </div>
+                    <div>
+                      <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 500, color: 'var(--text-primary)' }}>{doc.file_name}</p>
+                      <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                        {doc.type === 'student_verification' ? 'Immatrikulationsbescheinigung' : 'Zertifikat'} • {new Date(doc.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                  <div>
+                    {doc.status === 'pending' && <span className="badge" style={{ background: 'rgba(234,179,8,0.1)', color: '#eab308' }}><Clock size={12} style={{ marginRight: '4px' }}/> Ausstehend</span>}
+                    {doc.status === 'approved' && <span className="badge" style={{ background: 'rgba(34,197,94,0.1)', color: '#22c55e' }}><CheckCircle size={12} style={{ marginRight: '4px' }}/> Genehmigt</span>}
+                    {doc.status === 'rejected' && <span className="badge" style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}><AlertCircle size={12} style={{ marginRight: '4px' }}/> Abgelehnt</span>}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>

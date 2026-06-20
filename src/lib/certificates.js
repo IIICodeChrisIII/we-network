@@ -20,6 +20,12 @@ export const CERTIFICATES = {
     icon: GraduationCap, color: '#c79a2b', category: 'verification',
     issuer: 'Würth Elektronik', date: 'seit 2025',
   },
+  verified_student: {
+    id: 'verified_student', label: 'Verifizierter Student',
+    description: 'Immatrikulationsbescheinigung geprüft.',
+    icon: ShieldCheck, color: '#16a34a', category: 'verification',
+    issuer: 'WE Network',
+  },
 
   // ── Status ─────────────────────────────────────────────────
   mitarbeiter: {
@@ -116,6 +122,8 @@ export function getCertificates(profile) {
 
   if (profile.role === 'specialist') ids.push('tech_specialist');
   if (profile.role === 'admin') ids.push('hr_team');
+  
+  if (profile.is_verified_student) ids.push('verified_student');
 
   ids.push('network_member');
 
