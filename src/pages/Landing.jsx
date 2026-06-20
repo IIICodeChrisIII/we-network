@@ -111,8 +111,7 @@ export default function Landing() {
 
         <div className="bracket-grid">
           {brackets.map((b) => (
-            <div className="bracket-card" key={b.num}>
-              <span className="bracket-num">{b.num}</span>
+            <div className="bracket-card" key={b.eyebrow}>
               <span className="bracket-eyebrow">{b.eyebrow}</span>
               <h2 className="bracket-title">{b.title}</h2>
               <p className="bracket-desc">{b.desc}</p>
