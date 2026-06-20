@@ -14,7 +14,7 @@ export default function Navbar() {
   const fetchProfile = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      const { data } = await supabase.from('profiles').select('first_name, last_name').eq('id', user.id).single();
+      const { data } = await supabase.from('profiles').select('first_name, last_name, role, avatar_url').eq('id', user.id).single();
       if (data) setProfile(data);
     }
   };
@@ -29,7 +29,9 @@ export default function Navbar() {
     { name: 'Channels', path: '/channels', icon: <MessageSquare size={16} /> },
     { name: 'Kontakte', path: '/contacts', icon: <Users size={16} /> },
     { name: 'Karriere', path: '/career', icon: <Briefcase size={16} /> },
-    { name: 'Analytics', path: '/admin/dashboard', icon: <BarChart2 size={16} /> },
+    ...(profile && (profile.role === 'admin' || profile.role === 'analytics')
+      ? [{ name: 'Analytics', path: '/admin/dashboard', icon: <BarChart2 size={16} /> }]
+      : [])
   ];
 
   const initials = profile 
@@ -59,7 +61,11 @@ export default function Navbar() {
 
       <div className="navbar-actions">
         <NavLink to="/profile" className="navbar-user">
-          <div className="navbar-avatar">{initials}</div>
+          {profile?.avatar_url ? (
+            <img src={profile.avatar_url} alt="Profile" className="navbar-avatar" style={{ objectFit: 'cover' }} />
+          ) : (
+            <div className="navbar-avatar">{initials}</div>
+          )}
           <span style={{ fontSize: '0.85rem', fontWeight: 500, color: 'var(--text-secondary)' }}>
             {profile ? profile.first_name : 'Profil'}
           </span>
