@@ -792,7 +792,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-top: 3px solid var(--accent-red);
-  border-radius: var(--border-radius-sm);
+  border-radius: var(--border-radius-xl);
   padding: 28px 28px 22px;
   transition: all var(--transition-normal);
   overflow: hidden;
@@ -843,29 +843,38 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .bracket-links {
   display: flex;
   flex-direction: column;
+  gap: 10px;
 }
 
 .bracket-link {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 13px 6px;
-  border-top: 1px solid var(--border-color);
+  padding: 14px 18px;
+  background: var(--bg-tertiary);
+  border-radius: 12px;
   color: var(--text-primary);
   font-family: var(--font-display);
   font-weight: 600;
   font-size: 0.98rem;
-  transition: all var(--transition-fast);
+  transition: all var(--transition-bounce);
 }
 
 .bracket-link:hover {
-  color: var(--accent-red);
-  padding-left: 12px;
+  background: var(--accent-red);
+  color: #ffffff;
+  transform: scale(1.02);
+  box-shadow: var(--shadow-md);
 }
 
 .bracket-link-icon {
   display: flex;
   color: var(--accent-red);
+  transition: color var(--transition-fast);
+}
+
+.bracket-link:hover .bracket-link-icon {
+  color: #ffffff;
 }
 
 .bracket-link-name { flex: 1; }
