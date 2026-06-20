@@ -1,7 +1,22 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { findUniversity, getLogoUrl } from '../lib/universities';
+import { GERMAN_UNIVERSITIES, findUniversity, getLogoUrl } from '../lib/universities';
+import CertificateBadges from '../components/CertificateBadges';
+
+/*
+  Required Supabase SQL (run once in SQL Editor):
+
+  CREATE POLICY "Admins can create channels." ON public.channels
+  FOR INSERT WITH CHECK (
+    EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
+  );
+
+  CREATE POLICY "Users can create DM channels." ON public.channels
+  FOR INSERT WITH CHECK (
+    auth.uid() IS NOT NULL AND name LIKE 'dm-%'
+  );
+*/
 
 const MESSAGES_LIMIT = 150;
 const POLL_INTERVAL_MS = 3000;
@@ -852,9 +867,10 @@ export default function Channels() {
                   {initials(threadMsg.profiles ? `${threadMsg.profiles.first_name} ${threadMsg.profiles.last_name}`.trim() : 'U') || '?'}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 2 }}>
-                    <span className="disp" style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-primary)' }}>
-                      {threadMsg.profiles ? `${threadMsg.profiles.first_name} ${threadMsg.profiles.last_name}`.trim() : 'Unknown'}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
+                    {!isTemp && <CertificateBadges profile={msg.profiles} max={3} />}
+                    <span onMouseEnter={e => !isTemp && showHoverCard(e, msg)} onMouseLeave={hideHoverCard} style={{ fontWeight: 600, fontSize: '1rem', color: isSpecialist ? 'var(--accent-red)' : 'var(--text-primary)', cursor: isTemp ? 'default' : 'pointer' }}>
+                      {name}
                     </span>
                     <span style={{ fontSize: 11.5, color: 'var(--text-muted)' }}>
                       {new Date(threadMsg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
