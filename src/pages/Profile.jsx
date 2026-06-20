@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { User, Save, Briefcase, ChevronDown, X, Search, UserPlus, Award } from 'lucide-react';
+import { User, Save, Briefcase, ChevronDown, X, Search, UserPlus, Award, CheckCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { GERMAN_UNIVERSITIES, getLogoUrl, findUniversity } from '../lib/universities';
 import NodeBalance from '../components/NodeBalance';
+import { getCertificates, CATEGORY_LABEL } from '../lib/certificates';
+import CertificateBadges from '../components/CertificateBadges';
 
 function UniLogo({ domain, name, size = 22 }) {
   const [error, setError] = useState(false);
@@ -84,6 +86,7 @@ export default function Profile() {
   };
 
   const selectedUniData = profile.university ? findUniversity(profile.university) : null;
+  const certs = getCertificates(profile);
 
   const filteredUnis = GERMAN_UNIVERSITIES.filter(u =>
     u.name.toLowerCase().includes(uniSearch.toLowerCase()) ||
@@ -131,6 +134,11 @@ export default function Profile() {
               />
             </label>
             <p className="text-secondary" style={{ fontSize: '0.85rem' }}>JPG or PNG, max 2MB</p>
+            {certs.length > 0 && (
+              <div style={{ marginTop: '12px' }}>
+                <CertificateBadges profile={profile} max={8} size={22} />
+              </div>
+            )}
           </div>
         </div>
 
@@ -341,6 +349,45 @@ export default function Profile() {
             <Save size={18} /> {saving ? 'Saving...' : 'Save Changes'}
           </button>
         </div>
+      </div>
+
+      {/* ── Zertifikate & Status ──────────────────────────── */}
+      <div className="card">
+        <div className="flex-between" style={{ marginBottom: '20px' }}>
+          <div>
+            <h3 style={{ fontSize: '1.15rem', marginBottom: '2px' }}>Zertifikate &amp; Status</h3>
+            <p className="text-secondary" style={{ fontSize: '0.85rem' }}>
+              Deine verifizierten Status und Event-Teilnahmen.
+            </p>
+          </div>
+          <span className="badge badge-red">{certs.length}</span>
+        </div>
+
+        {certs.length === 0 ? (
+          <p className="text-secondary" style={{ fontSize: '0.9rem' }}>Noch keine Zertifikate.</p>
+        ) : (
+          <div className="cert-list">
+            {certs.map((c) => {
+              const Icon = c.icon;
+              return (
+                <div className="cert-row" key={c.id}>
+                  <div className="cert-row__icon" style={{ color: c.color, background: `${c.color}22` }}>
+                    <Icon size={22} strokeWidth={2.2} />
+                  </div>
+                  <div className="cert-row__body">
+                    <div className="cert-row__title">
+                      {c.label}
+                      <CheckCircle size={14} className="cert-row__check" />
+                    </div>
+                    <div className="cert-row__desc">{c.description}</div>
+                    <div className="cert-row__meta">{c.issuer}{c.date ? ` · ${c.date}` : ''}</div>
+                  </div>
+                  <span className={`cert-row__cat cert-row__cat--${c.category}`}>{CATEGORY_LABEL[c.category]}</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
