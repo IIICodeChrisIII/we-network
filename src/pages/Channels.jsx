@@ -19,8 +19,28 @@ export default function Channels() {
       
       const subscription = supabase
         .channel(`messages:channel_id=eq.${activeChannel.id}`)
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `channel_id=eq.${activeChannel.id}` }, payload => {
-          setMessages(prev => [...prev, payload.new]);
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `channel_id=eq.${activeChannel.id}` }, async (payload) => {
+          // Fetch the message with profile data
+          const { data: newMsg } = await supabase
+            .from('messages')
+            .select('*, profiles(first_name, last_name, role)')
+            .eq('id', payload.new.id)
+            .single();
+            
+          if (newMsg) {
+            setMessages(prev => {
+              // Replace optimistic message with the real one
+              const tempIndex = prev.findIndex(m => String(m.id).startsWith('temp-') && m.content === newMsg.content && m.user_id === newMsg.user_id);
+              if (tempIndex !== -1) {
+                const newArr = [...prev];
+                newArr[tempIndex] = newMsg;
+                return newArr;
+              }
+              // Normal deduplication just in case
+              if (prev.some(m => m.id === newMsg.id)) return prev;
+              return [...prev, newMsg];
+            });
+          }
         })
         .subscribe();
 
@@ -62,16 +82,32 @@ export default function Channels() {
     e.preventDefault();
     if (!newMessage.trim() || !activeChannel) return;
     
+    const content = newMessage;
+    setNewMessage(''); // Instant UI feedback
+    
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return alert("Please log in first");
 
-    const { error } = await supabase.from('messages').insert([
-      { channel_id: activeChannel.id, user_id: user.id, content: newMessage }
-    ]);
+    // Fetch sender profile for optimistic update
+    const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+
+    // Optimistic update
+    const tempId = 'temp-' + Date.now();
+    const optimisticMsg = {
+      id: tempId,
+      channel_id: activeChannel.id,
+      user_id: user.id,
+      content: content,
+      created_at: new Date().toISOString(),
+      profiles: profile
+    };
     
-    if (!error) {
-      setNewMessage('');
-    }
+    setMessages(prev => [...prev, optimisticMsg]);
+
+    // Send to server
+    await supabase.from('messages').insert([
+      { channel_id: activeChannel.id, user_id: user.id, content: content }
+    ]);
   };
 
   return (
