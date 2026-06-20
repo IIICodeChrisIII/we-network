@@ -159,7 +159,7 @@ export default function Channels() {
       {/* Chat Area */}
       <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '0', overflow: 'hidden' }}>
         {/* Chat Header */}
-        <div style={{ padding: '20px 28px', background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ padding: '20px 28px', background: 'var(--bg-tertiary)', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.25rem', fontWeight: '600' }}>
             <Hash size={22} className="text-secondary" /> {activeChannel?.name || 'Loading...'}
           </div>
@@ -186,7 +186,7 @@ export default function Channels() {
                   {isSpecialist && <span className="badge badge-red">Specialist</span>}
                   <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                 </div>
-                <div style={{ color: 'var(--text-primary)', lineHeight: '1.5', fontSize: '0.95rem', background: 'rgba(255,255,255,0.03)', padding: '12px 16px', borderRadius: '0 12px 12px 12px', display: 'inline-block' }}>
+                <div style={{ color: 'var(--text-primary)', lineHeight: '1.5', fontSize: '0.95rem', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', padding: '12px 16px', borderRadius: '0 12px 12px 12px', display: 'inline-block' }}>
                   {msg.content}
                 </div>
               </div>
@@ -197,8 +197,8 @@ export default function Channels() {
         </div>
 
         {/* Input */}
-        <div style={{ padding: '24px', background: 'rgba(255,255,255,0.01)', borderTop: '1px solid var(--border-color)' }}>
-          <form onSubmit={sendMessage} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border-color)', borderRadius: 'var(--border-radius-pill)', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '12px', transition: 'border-color var(--transition-fast)' }} onFocus={e => e.currentTarget.style.borderColor = 'var(--accent-red)'} onBlur={e => e.currentTarget.style.borderColor = 'var(--border-color)'}>
+        <div style={{ padding: '24px', background: 'var(--bg-secondary)', borderTop: '1px solid var(--border-color)' }}>
+          <form onSubmit={sendMessage} style={{ background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', borderRadius: 'var(--border-radius-pill)', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '12px', transition: 'border-color var(--transition-fast)' }} onFocus={e => e.currentTarget.style.borderColor = 'var(--accent-red)'} onBlur={e => e.currentTarget.style.borderColor = 'var(--border-color)'}>
             <input 
               type="text" 
               placeholder={`Message #${activeChannel?.name || '...'}`}

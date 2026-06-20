@@ -5,10 +5,23 @@ import { supabase } from '../lib/supabase';
 
 export default function Navbar() {
   const [profile, setProfile] = useState(null);
+  const [hidden, setHidden] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchProfile();
+  }, []);
+
+  // Leiste beim Runterscrollen ausblenden, beim Hochscrollen wieder einblenden
+  useEffect(() => {
+    let lastY = window.scrollY;
+    const handleScroll = () => {
+      const y = window.scrollY;
+      setHidden(y > lastY && y > 80);
+      lastY = y;
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const fetchProfile = async () => {
@@ -25,7 +38,7 @@ export default function Navbar() {
   };
 
   const navItems = [
-    { name: 'Feed', path: '/', icon: <Newspaper size={16} /> },
+    { name: 'Feed', path: '/feed', icon: <Newspaper size={16} /> },
     { name: 'Channels', path: '/channels', icon: <MessageSquare size={16} /> },
     { name: 'Kontakte', path: '/contacts', icon: <Users size={16} /> },
     { name: 'Karriere', path: '/career', icon: <Briefcase size={16} /> },
@@ -37,7 +50,7 @@ export default function Navbar() {
     : '?';
 
   return (
-    <nav className="navbar">
+    <nav className={`navbar ${hidden ? 'navbar--hidden' : ''}`}>
       <NavLink to="/" className="navbar-brand">
         <span className="navbar-brand-accent">WE</span>
         <span style={{ fontWeight: 400, marginLeft: '4px' }}>Network</span>
@@ -49,7 +62,7 @@ export default function Navbar() {
             key={item.path}
             to={item.path}
             className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}
-            end={item.path === '/'}
+            end={item.path === '/feed'}
           >
             {item.icon}
             {item.name}
@@ -60,7 +73,7 @@ export default function Navbar() {
       <div className="navbar-actions">
         <NavLink to="/profile" className="navbar-user">
           <div className="navbar-avatar">{initials}</div>
-          <span style={{ fontSize: '0.85rem', fontWeight: 500, color: 'var(--text-secondary)' }}>
+          <span style={{ fontSize: '0.85rem', fontWeight: 500, color: 'rgba(255, 255, 255, 0.85)' }}>
             {profile ? profile.first_name : 'Profil'}
           </span>
         </NavLink>
