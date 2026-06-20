@@ -106,10 +106,10 @@ export default function AdminDashboard() {
           <div style={{ height: '400px' }}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={activityData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                <XAxis dataKey="name" stroke="#888" tick={{fontSize: 14}} />
-                <YAxis stroke="#888" tick={{fontSize: 14}} />
-                <Tooltip contentStyle={{ backgroundColor: '#161618', border: '1px solid #333', fontSize: '1.1rem' }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis dataKey="name" stroke="#9aa3af" tick={{fontSize: 14}} />
+                <YAxis stroke="#9aa3af" tick={{fontSize: 14}} />
+                <Tooltip contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '1.1rem', boxShadow: '0 4px 12px rgba(16,24,40,0.08)' }} />
                 <Line type="monotone" dataKey="active" stroke="#cc0000" strokeWidth={4} />
               </LineChart>
             </ResponsiveContainer>
@@ -121,10 +121,10 @@ export default function AdminDashboard() {
           <div style={{ height: '400px' }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={conversionData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                <XAxis dataKey="name" stroke="#888" tick={{fontSize: 14}} />
-                <YAxis stroke="#888" tick={{fontSize: 14}} />
-                <Tooltip contentStyle={{ backgroundColor: '#161618', border: '1px solid #333', fontSize: '1.1rem' }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis dataKey="name" stroke="#9aa3af" tick={{fontSize: 14}} />
+                <YAxis stroke="#9aa3af" tick={{fontSize: 14}} />
+                <Tooltip contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '1.1rem', boxShadow: '0 4px 12px rgba(16,24,40,0.08)' }} cursor={{ fill: 'rgba(204,0,0,0.05)' }} />
                 <Bar dataKey="count" fill="#cc0000" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -156,13 +156,13 @@ export default function AdminDashboard() {
             </thead>
             <tbody>
               {students.map(student => (
-                <tr key={student.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                <tr key={student.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                   <td style={{ padding: '16px 12px', fontWeight: '500' }}>{student.first_name} {student.last_name}</td>
                   <td style={{ padding: '16px 12px' }}>{student.university} (Sem. {student.semester})</td>
                   <td style={{ padding: '16px 12px' }}>{student.degree}</td>
                   <td style={{ padding: '16px 12px' }}>
                     {student.status === 'intern'
-                      ? <span style={{ color: '#4ade80' }}>Yes</span> 
+                      ? <span style={{ color: 'var(--accent-green)', fontWeight: '600' }}>Yes</span>
                       : <span style={{ color: 'var(--text-muted)' }}>No</span>}
                   </td>
                   <td style={{ padding: '16px 12px' }}>
