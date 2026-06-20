@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+/* eslint-disable react/prop-types, react-hooks/exhaustive-deps */
+import { useState, useEffect } from 'react';
 import { Plus, X, Save } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
@@ -35,12 +36,12 @@ export default function StudentTalentForm({ userProfile, onSaved }) {
         .select('*')
         .eq('student_id', userProfile.id);
 
-      // Load talent profile
+      // Load talent profile (use maybeSingle to avoid error when missing)
       const { data: talentData } = await supabase
         .from('talent_profiles')
         .select('*')
         .eq('student_id', userProfile.id)
-        .single();
+        .maybeSingle();
 
       if (skillsData) setSkills(skillsData);
       if (modulesData) setModules(modulesData);
@@ -50,6 +51,8 @@ export default function StudentTalentForm({ userProfile, onSaved }) {
           bio: talentData.bio || '',
           availability_date: talentData.availability_date || ''
         });
+      } else {
+        setTalentProfile({ interests: [], bio: '', availability_date: '' });
       }
     } catch (error) {
       console.error('Error loading talent data:', error);
@@ -60,95 +63,99 @@ export default function StudentTalentForm({ userProfile, onSaved }) {
   const addSkill = async () => {
     if (!newSkill.name.trim()) return;
 
-    const { error } = await supabase
-      .from('student_skills')
-      .insert({
-        student_id: userProfile.id,
-        skill_name: newSkill.name,
-        proficiency_level: newSkill.level
-      });
+    try {
+      const { data, error } = await supabase
+        .from('student_skills')
+        .insert({
+          student_id: userProfile.id,
+          skill_name: newSkill.name,
+          proficiency_level: newSkill.level
+        })
+        .select()
+        .maybeSingle();
 
-    if (!error) {
-      setSkills([...skills, { id: Date.now(), skill_name: newSkill.name, proficiency_level: newSkill.level }]);
+      if (error) throw error;
+      // Use returned row (with real id)
+      setSkills(prev => [...prev, data]);
       setNewSkill({ name: '', level: 'intermediate' });
+    } catch (err) {
+      console.error('Error adding skill:', err);
+      alert('Fehler beim Hinzufügen des Skills. Schau in die Konsole.');
     }
   };
 
   const removeSkill = async (skillId) => {
-    const { error } = await supabase
-      .from('student_skills')
-      .delete()
-      .eq('id', skillId);
+    try {
+      const { error } = await supabase
+        .from('student_skills')
+        .delete()
+        .eq('id', skillId);
 
-    if (!error) {
-      setSkills(skills.filter(s => s.id !== skillId));
+      if (error) throw error;
+      setSkills(prev => prev.filter(s => s.id !== skillId));
+    } catch (err) {
+      console.error('Error removing skill:', err);
+      alert('Fehler beim Löschen des Skills. Schau in die Konsole.');
     }
   };
 
   const addModule = async () => {
     if (!newModule.name.trim()) return;
 
-    const { error } = await supabase
-      .from('student_modules')
-      .insert({
-        student_id: userProfile.id,
-        module_name: newModule.name,
-        grade: newModule.grade || null,
-        semester: newModule.semester || null
-      });
+    try {
+      const { data, error } = await supabase
+        .from('student_modules')
+        .insert({
+          student_id: userProfile.id,
+          module_name: newModule.name,
+          grade: newModule.grade || null,
+          semester: newModule.semester || null
+        })
+        .select()
+        .maybeSingle();
 
-    if (!error) {
-      setModules([...modules, {
-        id: Date.now(),
-        module_name: newModule.name,
-        grade: newModule.grade,
-        semester: newModule.semester
-      }]);
+      if (error) throw error;
+      setModules(prev => [...prev, data]);
       setNewModule({ name: '', grade: '', semester: '' });
+    } catch (err) {
+      console.error('Error adding module:', err);
+      alert('Fehler beim Hinzufügen des Moduls. Schau in die Konsole.');
     }
   };
 
   const removeModule = async (moduleId) => {
-    const { error } = await supabase
-      .from('student_modules')
-      .delete()
-      .eq('id', moduleId);
+    try {
+      const { error } = await supabase
+        .from('student_modules')
+        .delete()
+        .eq('id', moduleId);
 
-    if (!error) {
-      setModules(modules.filter(m => m.id !== moduleId));
+      if (error) throw error;
+      setModules(prev => prev.filter(m => m.id !== moduleId));
+    } catch (err) {
+      console.error('Error removing module:', err);
+      alert('Fehler beim Löschen des Moduls. Schau in die Konsole.');
     }
   };
 
   const saveTalentProfile = async () => {
     setLoading(true);
     try {
-      // Check if profile exists
-      const { data: existing } = await supabase
-        .from('talent_profiles')
-        .select('id')
-        .eq('student_id', userProfile.id)
-        .single();
-
       const profileData = {
+        student_id: userProfile.id,
         interests: JSON.stringify(talentProfile.interests),
         bio: talentProfile.bio,
         availability_date: talentProfile.availability_date
       };
 
-      if (existing) {
-        await supabase
-          .from('talent_profiles')
-          .update(profileData)
-          .eq('student_id', userProfile.id);
-      } else {
-        await supabase
-          .from('talent_profiles')
-          .insert({
-            student_id: userProfile.id,
-            ...profileData
-          });
-      }
+      // Upsert will insert or update depending on existence
+      const { data, error } = await supabase
+        .from('talent_profiles')
+        .upsert(profileData)
+        .select()
+        .maybeSingle();
 
+      if (error) throw error;
       if (onSaved) onSaved();
     } catch (error) {
       console.error('Error saving talent profile:', error);

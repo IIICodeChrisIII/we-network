@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Search, Filter, Mail, Phone } from 'lucide-react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useState, useEffect } from 'react';
+import { Search, Filter, Mail } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 export default function TalentPoolBrowser() {
@@ -23,50 +24,38 @@ export default function TalentPoolBrowser() {
   const loadTalents = async () => {
     setLoading(true);
     try {
-      // Get all talent profiles with student details
-      const { data, error } = await supabase
+      // Get all talent profiles
+      const { data: talentsData, error: talentsError } = await supabase
         .from('talent_profiles')
-        .select(`
-          id,
-          student_id,
-          interests,
-          bio,
-          availability_date,
-          profiles:student_id(
-            id,
-            first_name,
-            last_name,
-            university,
-            degree,
-            semester
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
-      if (!error && data) {
-        // Load skills for each talent
-        const talentsWithSkills = await Promise.all(
-          data.map(async (talent) => {
-            const { data: skillsData } = await supabase
-              .from('student_skills')
-              .select('*')
-              .eq('student_id', talent.student_id);
-
-            const { data: modulesData } = await supabase
-              .from('student_modules')
-              .select('*')
-              .eq('student_id', talent.student_id);
-
-            return {
-              ...talent,
-              skills: skillsData || [],
-              modules: modulesData || []
-            };
-          })
-        );
-
-        setTalents(talentsWithSkills);
+      if (talentsError) throw talentsError;
+      if (!talentsData) {
+        setTalents([]);
+        setLoading(false);
+        return;
       }
+
+      // For each talent, fetch profile, skills and modules in parallel
+      const talentsWithDetails = await Promise.all(
+        talentsData.map(async (talent) => {
+          const [{ data: profile }, { data: skills }, { data: modules }] = await Promise.all([
+            supabase.from('profiles').select('id, first_name, last_name, university, degree, semester').eq('id', talent.student_id).maybeSingle(),
+            supabase.from('student_skills').select('*').eq('student_id', talent.student_id),
+            supabase.from('student_modules').select('*').eq('student_id', talent.student_id)
+          ]);
+
+          return {
+            ...talent,
+            profiles: profile || null,
+            skills: skills || [],
+            modules: modules || []
+          };
+        })
+      );
+
+      setTalents(talentsWithDetails);
     } catch (error) {
       console.error('Error loading talents:', error);
     }

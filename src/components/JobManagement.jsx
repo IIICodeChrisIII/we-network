@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, X, Edit2 } from 'lucide-react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useState, useEffect } from 'react';
+import { X, Edit2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 export default function JobManagement() {
@@ -40,26 +41,27 @@ export default function JobManagement() {
     setLoading(true);
     try {
       if (editingId) {
-        // Update existing job
-        const { error } = await supabase
+        // Update existing job and return updated row
+        const { data, error } = await supabase
           .from('jobs')
           .update(newJob)
-          .eq('id', editingId);
+          .eq('id', editingId)
+          .select()
+          .maybeSingle();
 
-        if (!error) {
-          setJobs(jobs.map(j => j.id === editingId ? { ...j, ...newJob } : j));
-          setEditingId(null);
-        }
+        if (error) throw error;
+        setJobs(prev => prev.map(j => j.id === editingId ? data : j));
+        setEditingId(null);
       } else {
-        // Create new job
+        // Create new job and get created row
         const { data, error } = await supabase
           .from('jobs')
           .insert([newJob])
-          .select();
+          .select()
+          .maybeSingle();
 
-        if (!error && data) {
-          setJobs([data[0], ...jobs]);
-        }
+        if (error) throw error;
+        setJobs(prev => [data, ...prev]);
       }
 
       setNewJob({
@@ -96,13 +98,17 @@ export default function JobManagement() {
     if (!window.confirm('Soll diese Stelle wirklich gelöscht werden?')) return;
 
     setLoading(true);
-    const { error } = await supabase
-      .from('jobs')
-      .delete()
-      .eq('id', jobId);
+    try {
+      const { error } = await supabase
+        .from('jobs')
+        .delete()
+        .eq('id', jobId);
 
-    if (!error) {
-      setJobs(jobs.filter(j => j.id !== jobId));
+      if (error) throw error;
+      setJobs(prev => prev.filter(j => j.id !== jobId));
+    } catch (err) {
+      console.error('Error deleting job:', err);
+      alert('Fehler beim Löschen der Stelle. Schau in die Konsole.');
     }
     setLoading(false);
   };
