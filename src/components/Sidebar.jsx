@@ -1,13 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Newspaper, MessageSquare, Briefcase, Users, User, BarChart2, LogOut, Inbox } from 'lucide-react';
+import { Newspaper, MessageSquare, Briefcase, Users, User, BarChart2, LogOut, Inbox, Sun, Moon } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import weLogo from '../assets/we-logo.gif';
 
 export default function Navbar() {
   const [profile, setProfile] = useState(null);
   const [hidden, setHidden] = useState(false);
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
 
   useEffect(() => {
     fetchProfile();
@@ -75,6 +85,9 @@ export default function Navbar() {
       </div>
 
       <div className="navbar-actions">
+        <button onClick={toggleTheme} className="navbar-theme-toggle" aria-label="Toggle Theme">
+          {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+        </button>
         <NavLink to="/profile" className="navbar-user">
           {profile?.avatar_url ? (
             <img src={profile.avatar_url} alt="Profile" className="navbar-avatar" style={{ objectFit: 'cover' }} />
