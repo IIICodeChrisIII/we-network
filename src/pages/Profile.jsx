@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { User, Save, Briefcase, ChevronDown, X, Search, UserPlus, Award } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { GERMAN_UNIVERSITIES, getLogoUrl, findUniversity } from '../lib/universities';
+import NodeBalance from '../components/NodeBalance';
 
 function UniLogo({ domain, name, size = 22 }) {
   const [error, setError] = useState(false);
@@ -93,9 +94,12 @@ export default function Profile() {
 
   return (
     <div className="page-content animate-fade-in" style={{ maxWidth: '800px' }}>
-      <div className="page-header">
-        <h1 className="page-title">Profil</h1>
-        <p className="page-description">Manage your personal information and career status.</p>
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div>
+          <h1 className="page-title">Profil</h1>
+          <p className="page-description">Manage your personal information and career status.</p>
+        </div>
+        <NodeBalance userId={profile?.id} />
       </div>
 
       <div className="card" style={{ marginBottom: '24px' }}>
