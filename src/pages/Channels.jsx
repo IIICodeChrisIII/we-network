@@ -107,14 +107,9 @@ export default function Channels() {
         if (newMsg) {
           lastTimestampRef.current = newMsg.created_at;
           setMessages(prev => {
-            const tempIdx = prev.findIndex(m => String(m.id).startsWith('temp-') && m.content === newMsg.content && m.user_id === newMsg.user_id);
-            if (tempIdx !== -1) {
-              const arr = [...prev];
-              arr[tempIdx] = newMsg;
-              return arr;
-            }
-            if (prev.some(m => m.id === newMsg.id)) return prev;
-            return [...prev, newMsg];
+            let arr = prev.filter(m => !(String(m.id).startsWith('temp-') && m.content === newMsg.content));
+            if (arr.some(m => m.id === newMsg.id)) return arr;
+            return [...arr, newMsg];
           });
         }
       })
@@ -132,8 +127,14 @@ export default function Channels() {
       if (data && data.length > 0) {
         lastTimestampRef.current = data[data.length - 1].created_at;
         setMessages(prev => {
-          const newOnes = data.filter(m => !prev.some(pm => pm.id === m.id));
-          return newOnes.length === 0 ? prev : [...prev, ...newOnes];
+          let arr = [...prev];
+          data.forEach(newMsg => {
+            arr = arr.filter(m => !(String(m.id).startsWith('temp-') && m.content === newMsg.content));
+            if (!arr.some(m => m.id === newMsg.id)) {
+              arr.push(newMsg);
+            }
+          });
+          return arr;
         });
       }
     }, POLL_INTERVAL_MS);
