@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { Send, Search, MessageSquare, ChevronLeft, GraduationCap, BookOpen } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { findUniversity, getLogoUrl } from '../lib/universities';
@@ -41,6 +41,7 @@ function timeLabel(iso) {
 export default function Messages() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [currentUser, setCurrentUser] = useState(null);       // { authId, ...profile }
   const [conversations, setConversations] = useState([]);     // [{ channel, otherProfile, lastMsg }]
@@ -65,7 +66,7 @@ export default function Messages() {
 
   async function init() {
     const user = await fetchCurrentUser();
-    if (!user) { navigate('/login'); return; }
+    if (!user) { navigate('/login', { replace: true, state: { from: location.pathname + location.search } }); return; }
     await fetchConversations(user);
     setLoading(false);
     isInitialized.current = true;

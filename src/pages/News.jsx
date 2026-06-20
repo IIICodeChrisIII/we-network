@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ThumbsUp, MessageSquare, Share2, Calendar, Send, Zap } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { triggerRewardEvent } from '../lib/rewardEvents';
+import CertificateBadges from '../components/CertificateBadges';
 
 export default function News() {
   const [posts, setPosts] = useState([]);
@@ -206,7 +207,8 @@ export default function News() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px', marginTop: post.type === 'challenge' ? '12px' : '0' }}>
                   {renderAvatar(post.profiles)}
                   <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                      <CertificateBadges profile={post.profiles} max={3} />
                       <h3 style={{ fontSize: '1.05rem', fontWeight: 600 }}>{post.profiles?.first_name || 'User'} {post.profiles?.last_name || ''}</h3>
                       <span className={`badge ${post.profiles?.role === 'startup' ? 'badge-green' : (post.profiles?.status === 'employee' ? 'badge-red' : 'badge-blue')}`}>
                         {post.profiles?.role === 'startup' ? 'Startup' : (post.profiles?.status === 'employee' ? 'Mitarbeiter' : (post.profiles?.status || 'Student'))}

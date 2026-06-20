@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Newspaper, MessageSquare, Users, User, Briefcase, BarChart2, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Newspaper, MessageSquare, Users, User, Briefcase, BarChart2, ArrowRight, ChevronLeft, ChevronRight, Package } from 'lucide-react';
 import Footer from '../components/Footer';
 import hero1 from '../assets/hero-1.webp';
 import hero2 from '../assets/hero-2.avif';
@@ -40,11 +40,11 @@ const brackets = [
   },
   {
     num: '04',
-    eyebrow: 'Insights',
-    title: 'HR & Analytics',
-    desc: 'Kennzahlen und Auswertungen für Talent Management und HR.',
+    eyebrow: 'Produkte',
+    title: 'Bauteile & Lösungen',
+    desc: 'Erfahre mehr über die Produkte und Lösungen von Würth Elektronik.',
     links: [
-      { name: 'Analytics Dashboard', path: '/admin/dashboard', icon: <BarChart2 size={18} /> },
+      { name: 'Produkte entdecken', path: '/network/rewards', icon: <Package size={18} /> },
     ],
   },
 ];
@@ -111,18 +111,25 @@ export default function Landing() {
 
         <div className="bracket-grid">
           {brackets.map((b) => (
-            <div className="bracket-card" key={b.num}>
-              <span className="bracket-num">{b.num}</span>
+            <div className="bracket-card" key={b.eyebrow}>
               <span className="bracket-eyebrow">{b.eyebrow}</span>
               <h2 className="bracket-title">{b.title}</h2>
               <p className="bracket-desc">{b.desc}</p>
               <div className="bracket-links">
                 {b.links.map((l) => (
-                  <Link to={l.path} className="bracket-link" key={l.path}>
-                    <span className="bracket-link-icon">{l.icon}</span>
-                    <span className="bracket-link-name">{l.name}</span>
-                    <ArrowRight size={16} className="bracket-link-arrow" />
-                  </Link>
+                  l.external ? (
+                    <a href={l.path} target="_blank" rel="noopener noreferrer" className="bracket-link" key={l.path}>
+                      <span className="bracket-link-icon">{l.icon}</span>
+                      <span className="bracket-link-name">{l.name}</span>
+                      <ArrowRight size={16} className="bracket-link-arrow" />
+                    </a>
+                  ) : (
+                    <Link to={l.path} className="bracket-link" key={l.path}>
+                      <span className="bracket-link-icon">{l.icon}</span>
+                      <span className="bracket-link-name">{l.name}</span>
+                      <ArrowRight size={16} className="bracket-link-arrow" />
+                    </Link>
+                  )
                 ))}
               </div>
             </div>
