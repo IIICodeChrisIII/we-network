@@ -24,7 +24,7 @@ export default function AdminDashboard() {
       const studentsList = profiles.filter(p => p.role === 'user' || p.status === 'student');
       setStudents(studentsList.map(s => ({
         ...s,
-        healthScore: Math.floor(Math.random() * 25) + 70, // 70-95
+        engagementScore: Math.floor(Math.random() * 25) + 70, // 70-95
         lastTouchpoint: s.status === 'intern' ? 'Vor 1 Tag: Vertrag bestätigt' : 'Vor 3 Tagen: Event Zusage'
       })));
       setStats({
@@ -72,7 +72,7 @@ export default function AdminDashboard() {
   const trueRoi = Math.round(((sourcingSavings - currentBudget) / currentBudget) * 100);
   const costPerHire = Math.round(currentBudget / scaledHires);
   
-  const qualifiedTalents = students.filter(s => s.healthScore > 80).length;
+  const qualifiedTalents = students.filter(s => s.engagementScore > 80).length;
   const scaledQualified = Math.max(1, Math.round(qualifiedTalents * hireMultiplier));
   const costPerQualified = Math.round(currentBudget / scaledQualified);
 
@@ -173,7 +173,7 @@ export default function AdminDashboard() {
             <Activity className="text-accent" size={24} />
           </div>
           <span className="stat-value" style={{ fontSize: '3rem' }}>€ {costPerQualified.toLocaleString()}</span>
-          <span className="text-secondary text-sm">Pipeline Value (Health {'>'} 80)</span>
+          <span className="text-secondary text-sm">Pipeline Value (Engagement {'>'} 80)</span>
         </div>
 
         <div className="card stat-card delay-300" style={{ padding: '32px' }}>
@@ -305,7 +305,7 @@ export default function AdminDashboard() {
                 <th style={{ padding: '12px', color: 'var(--text-secondary)' }}>University</th>
                 <th style={{ padding: '12px', color: 'var(--text-secondary)' }}>Major</th>
                 <th style={{ padding: '12px', color: 'var(--text-secondary)' }}>Status</th>
-                <th style={{ padding: '12px', color: 'var(--text-secondary)' }}>Health Score</th>
+                <th style={{ padding: '12px', color: 'var(--text-secondary)' }}>Engagement Level</th>
                 <th style={{ padding: '12px', color: 'var(--text-secondary)' }}>Last Touchpoint</th>
                 <th style={{ padding: '12px', color: 'var(--text-secondary)' }}>Action</th>
               </tr>
@@ -325,8 +325,8 @@ export default function AdminDashboard() {
                   </td>
                   <td style={{ padding: '16px 12px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <Activity size={16} style={{ color: student.healthScore > 85 ? 'var(--accent-green)' : 'var(--text-primary)' }} />
-                      <span style={{ fontWeight: '600', color: student.healthScore > 85 ? 'var(--accent-green)' : 'var(--text-primary)' }}>{student.healthScore}/100</span>
+                      <Activity size={16} style={{ color: student.engagementScore > 85 ? 'var(--accent-green)' : 'var(--text-primary)' }} />
+                      <span style={{ fontWeight: '600', color: student.engagementScore > 85 ? 'var(--accent-green)' : 'var(--text-primary)' }}>{student.engagementScore}%</span>
                     </div>
                   </td>
                   <td style={{ padding: '16px 12px', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
