@@ -57,6 +57,28 @@ rewardEvents.subscribe('message_sent', async ({ userId }) => {
   }
 });
 
+rewardEvents.subscribe('challenge_solved', async ({ userId, challengeId }) => {
+  if (!userId) return;
+  try {
+    // Award 50 WE-Nodes for solving a tech challenge
+    const { error } = await supabase.rpc('process_we_node_transaction', {
+      p_user_id: userId,
+      p_amount: 50,
+      p_action_type: 'challenge_solved',
+      p_metadata: { challengeId }
+    });
+    
+    if (error) {
+      console.warn('[RewardEvents] Failed to process transaction for challenge_solved.', error);
+    } else {
+      console.log(`[RewardEvents] Awarded 50 WE-Nodes to user ${userId} for challenge ${challengeId}`);
+      window.dispatchEvent(new CustomEvent('we_nodes_updated'));
+    }
+  } catch (err) {
+    console.error('[RewardEvents] Exception in challenge processing:', err);
+  }
+});
+
 // Helper function for the UI to call
 export const triggerRewardEvent = (event, payload) => {
   rewardEvents.dispatch(event, payload);
