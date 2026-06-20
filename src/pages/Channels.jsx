@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Hash, Send, Users } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
@@ -8,6 +8,15 @@ export default function Channels() {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   useEffect(() => {
     fetchChannels();
@@ -85,26 +94,28 @@ export default function Channels() {
     const content = newMessage;
     setNewMessage(''); // Instant UI feedback
     
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return alert("Please log in first");
-
-    // Fetch sender profile for optimistic update
-    const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-
-    // Optimistic update
+    // 1. TRULY INSTANT OPTIMISTIC UPDATE (No await before this!)
     const tempId = 'temp-' + Date.now();
     const optimisticMsg = {
       id: tempId,
       channel_id: activeChannel.id,
-      user_id: user.id,
+      user_id: 'pending', // Will be overwritten
       content: content,
       created_at: new Date().toISOString(),
-      profiles: profile
+      profiles: { first_name: 'Du', last_name: '(wird gesendet...)', role: 'user' }
     };
     
     setMessages(prev => [...prev, optimisticMsg]);
+    
+    // 2. Fetch User
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      // Revert if not logged in
+      setMessages(prev => prev.filter(m => m.id !== tempId));
+      return alert("Please log in first");
+    }
 
-    // Send to server
+    // 3. Send to server
     await supabase.from('messages').insert([
       { channel_id: activeChannel.id, user_id: user.id, content: content }
     ]);
@@ -182,6 +193,7 @@ export default function Channels() {
             </div>
             );
           })}
+          <div ref={messagesEndRef} />
         </div>
 
         {/* Input */}
