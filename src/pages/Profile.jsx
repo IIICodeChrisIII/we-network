@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { User, Save, Briefcase, ChevronDown, X, Search, UserPlus, Award, CheckCircle } from 'lucide-react';
+import { User, Save, Briefcase, ChevronDown, X, Search, UserPlus, Award, CheckCircle, Building2, Calendar } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { GERMAN_UNIVERSITIES, getLogoUrl, findUniversity } from '../lib/universities';
 import { getCertificates, CATEGORY_LABEL } from '../lib/certificates';
@@ -348,37 +348,57 @@ export default function Profile() {
       </div>
 
       {/* ── Zertifikate & Status ──────────────────────────── */}
-      <div className="card">
-        <div className="flex-between" style={{ marginBottom: '20px' }}>
-          <div>
-            <h3 style={{ fontSize: '1.15rem', marginBottom: '2px' }}>Zertifikate &amp; Status</h3>
-            <p className="text-secondary" style={{ fontSize: '0.85rem' }}>
-              Deine verifizierten Status und Event-Teilnahmen.
-            </p>
+      <div className="card card-static">
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', paddingBottom: '20px', borderBottom: '1px solid var(--border-color)', marginBottom: '22px' }}>
+          <div style={{ width: '48px', height: '48px', borderRadius: '10px', background: 'linear-gradient(135deg, #e2001a, #b80016)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 6px 16px rgba(226,0,26,.28)' }}>
+            <Award size={24} color="#fff" strokeWidth={2} />
           </div>
-          <span className="badge badge-red">{certs.length}</span>
+          <div style={{ flex: 1 }}>
+            <h3 style={{ fontSize: '1.15rem', marginBottom: '2px' }}>Zertifikate &amp; Status</h3>
+            <p className="text-secondary" style={{ fontSize: '0.85rem' }}>Deine verifizierten Status und Event-Teilnahmen.</p>
+          </div>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', height: '28px', padding: '0 10px', borderRadius: '999px', background: 'rgba(226,0,26,.09)', color: 'var(--accent-red)', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '0.82rem', flexShrink: 0 }}>
+            <CheckCircle size={14} />
+            {certs.length} verifiziert
+          </div>
         </div>
 
         {certs.length === 0 ? (
           <p className="text-secondary" style={{ fontSize: '0.9rem' }}>Noch keine Zertifikate.</p>
         ) : (
-          <div className="cert-list">
-            {certs.map((c) => {
+          <div className="cert-grid">
+            {certs.map((c, i) => {
               const Icon = c.icon;
+              const tint = `${c.color}20`;
+              const MetaIcon = c.category === 'event' ? Calendar : Building2;
               return (
-                <div className="cert-row" key={c.id}>
-                  <div className="cert-row__icon" style={{ color: c.color, background: `${c.color}22` }}>
-                    <Icon size={22} strokeWidth={2.2} />
-                  </div>
-                  <div className="cert-row__body">
-                    <div className="cert-row__title">
-                      {c.label}
-                      <CheckCircle size={14} className="cert-row__check" />
+                <div className="cert-card" key={c.id} style={{ '--cert-accent': c.color, animationDelay: `${i * 0.06}s` }}>
+                  <span className="cert-card__accent" />
+                  <div className="cert-card__body">
+                    <div className="cert-card__icon" style={{ background: tint }}>
+                      <Icon size={26} color={c.color} strokeWidth={2} />
                     </div>
-                    <div className="cert-row__desc">{c.description}</div>
-                    <div className="cert-row__meta">{c.issuer}{c.date ? ` · ${c.date}` : ''}</div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div className="cert-card__title-row">
+                        <span className="cert-card__title">{c.label}</span>
+                        <CheckCircle size={15} style={{ color: '#1a8a44', flexShrink: 0 }} />
+                      </div>
+                      <div className="cert-card__pill" style={{ background: tint, color: c.color }}>
+                        {CATEGORY_LABEL[c.category]}
+                      </div>
+                    </div>
                   </div>
-                  <span className={`cert-row__cat cert-row__cat--${c.category}`}>{CATEGORY_LABEL[c.category]}</span>
+                  <div className="cert-card__desc">{c.description}</div>
+                  <div className="cert-card__footer">
+                    <MetaIcon size={15} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+                    <span className="cert-card__org">{c.issuer}</span>
+                    {c.date && (
+                      <>
+                        <span className="cert-card__dot" />
+                        <span className="cert-card__date">{c.date}</span>
+                      </>
+                    )}
+                  </div>
                 </div>
               );
             })}
