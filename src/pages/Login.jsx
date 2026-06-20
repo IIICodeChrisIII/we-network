@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Mail, ArrowRight, GraduationCap, Calendar, Lock, Search, X, ChevronUp } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { GERMAN_UNIVERSITIES, getLogoUrl, findUniversity } from '../lib/universities';
@@ -34,6 +34,8 @@ export default function Login() {
   const uniInputRef = useRef(null);
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from || '/';
 
   useEffect(() => {
     const handler = (e) => {
@@ -95,7 +97,7 @@ export default function Login() {
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        navigate('/');
+        navigate(from, { replace: true });
       }
     } catch (err) {
       setError(err.message);
