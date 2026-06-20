@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageSquare, Mail, Award } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import CertificateBadges from '../components/CertificateBadges';
 
 export default function Contacts() {
   const navigate = useNavigate();
@@ -41,7 +42,8 @@ export default function Contacts() {
                 <div style={{ width: '84px', height: '84px', borderRadius: '50%', background: 'var(--bg-tertiary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.2rem', fontWeight: 'bold', marginBottom: '20px', border: '3px solid var(--border-color)', color: 'var(--text-primary)' }}>
                   {initials}
                 </div>
-                <h3 style={{ fontSize: '1.3rem', fontWeight: 600, marginBottom: '6px', color: 'var(--text-primary)' }}>{spec.first_name} {spec.last_name}</h3>
+                <h3 style={{ fontSize: '1.3rem', fontWeight: 600, marginBottom: '8px', color: 'var(--text-primary)' }}>{spec.first_name} {spec.last_name}</h3>
+                <div style={{ marginBottom: '12px' }}><CertificateBadges profile={spec} max={5} size={20} /></div>
                 <span className="badge badge-red" style={{ marginBottom: '16px' }}>{spec.role}</span>
                 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '28px', lineHeight: '1.5' }}>

@@ -989,6 +989,173 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   font-size: 0.82rem;
 }
 
+/* ─── Certificates / Badges ──────────────────────────────── */
+.cert-badges {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  vertical-align: middle;
+}
+
+.cert-badge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.cert-badge__chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  flex-shrink: 0;
+}
+
+.cert-badge--more {
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  padding: 0 3px;
+}
+
+.cert-badge__tip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  width: 230px;
+  max-width: 62vw;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: var(--we-dark);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  padding: 10px 12px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.14s ease, transform 0.14s ease;
+  z-index: 60;
+  text-transform: none;
+  letter-spacing: normal;
+  white-space: normal;
+}
+
+.cert-badge:hover .cert-badge__tip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.cert-badge__tip-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.84rem;
+  line-height: 1.2;
+}
+
+.cert-badge__tip-desc {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.78);
+  line-height: 1.4;
+}
+
+.cert-badge__tip-meta {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 2px;
+}
+
+/* Ausführliche Liste (Profil) */
+.cert-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cert-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  background: var(--bg-secondary);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.cert-row:hover {
+  border-color: rgba(226, 0, 26, 0.3);
+  box-shadow: var(--shadow-sm);
+}
+
+.cert-row__icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cert-row__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.cert-row__title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.cert-row__check {
+  color: var(--accent-green);
+  flex-shrink: 0;
+}
+
+.cert-row__desc {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+  line-height: 1.4;
+}
+
+.cert-row__meta {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+.cert-row__cat {
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 3px 8px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.cert-row__cat--verification { background: rgba(199, 154, 43, 0.14); color: #b07f1e; }
+.cert-row__cat--status { background: rgba(226, 0, 26, 0.10); color: var(--accent-red); }
+.cert-row__cat--event { background: rgba(29, 78, 216, 0.10); color: #1d4ed8; }
+
+@media (max-width: 560px) {
+  .cert-row__cat { display: none; }
+}
+
 /* ─── Animations ─────────────────────────────────────────── */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(12px); }
