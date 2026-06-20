@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { triggerRewardEvent } from '../lib/rewardEvents';
 import { GERMAN_UNIVERSITIES, findUniversity, getLogoUrl } from '../lib/universities';
 import CertificateBadges from '../components/CertificateBadges';
 
@@ -301,6 +302,9 @@ export default function Channels() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setMessages(prev => prev.filter(m => m.id !== tempId)); return; }
     await supabase.from('messages').insert([{ channel_id: activeChannel.id, user_id: user.id, content }]);
+    
+    // Trigger Gamification Event (Fire & Forget to ensure Graceful Degradation)
+    triggerRewardEvent('message_sent', { userId: user.id });
   };
 
   const createChannel = async () => {

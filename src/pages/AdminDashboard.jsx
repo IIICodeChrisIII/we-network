@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Users, Euro, Clock, UserCheck, Search, Activity, TrendingUp, X, UserPlus, Briefcase, Award } from 'lucide-react';
+import { Users, Euro, Clock, UserCheck, Search, Activity, TrendingUp, X, UserPlus, Briefcase, Award, FileText, CheckCircle, XCircle } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, AreaChart, Area } from 'recharts';
 import { supabase } from '../lib/supabase';
 
@@ -12,6 +12,7 @@ export default function AdminDashboard() {
   const [timeFilter, setTimeFilter] = useState('30d');
   const [monthlyBudget, setMonthlyBudget] = useState(1000);
   const [selectedCrmProfile, setSelectedCrmProfile] = useState(null);
+  const [pendingDocs, setPendingDocs] = useState([]);
 
   useEffect(() => {
     fetchDashboardData();
@@ -33,7 +34,28 @@ export default function AdminDashboard() {
         employees: profiles.filter(p => p.status === 'employee').length
       });
     }
+
+    const { data: docs } = await supabase.from('user_documents').select('*, profiles(first_name, last_name)').eq('status', 'pending');
+    if (docs) setPendingDocs(docs);
+
     setLoading(false);
+  };
+
+  const handleApproveDoc = async (docId, type, userId) => {
+    const { error } = await supabase.from('user_documents').update({ status: 'approved' }).eq('id', docId);
+    if (!error) {
+      if (type === 'student_verification') {
+        await supabase.from('profiles').update({ is_verified_student: true }).eq('id', userId);
+      }
+      setPendingDocs(prev => prev.filter(d => d.id !== docId));
+    }
+  };
+
+  const handleRejectDoc = async (docId) => {
+    const { error } = await supabase.from('user_documents').update({ status: 'rejected' }).eq('id', docId);
+    if (!error) {
+      setPendingDocs(prev => prev.filter(d => d.id !== docId));
+    }
   };
 
   // Time Filter Simulation Logic
@@ -200,6 +222,44 @@ export default function AdminDashboard() {
             </ResponsiveContainer>
           </div>
         </div>
+      </div>
+
+      <div className="card" style={{ marginBottom: '48px' }}>
+        <h3 style={{ marginBottom: '24px', fontSize: '1.4rem' }}>Pending Document Reviews</h3>
+        {pendingDocs.length === 0 ? (
+          <p className="text-secondary">Keine ausstehenden Dokumente zur Überprüfung.</p>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {pendingDocs.map(doc => (
+              <div key={doc.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', background: 'var(--bg-secondary)', borderRadius: 'var(--border-radius-md)', border: '1px solid var(--border-color)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <div style={{ padding: '12px', background: 'var(--bg-tertiary)', borderRadius: '8px', color: 'var(--text-primary)' }}>
+                    <FileText size={24} />
+                  </div>
+                  <div>
+                    <p style={{ margin: 0, fontSize: '1.05rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                      {doc.profiles?.first_name} {doc.profiles?.last_name}
+                    </p>
+                    <p style={{ margin: '4px 0 0 0', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                      {doc.type === 'student_verification' ? 'Immatrikulationsbescheinigung' : 'Zertifikat'} • {doc.file_name}
+                    </p>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <a href={doc.file_data} download={doc.file_name} target="_blank" rel="noreferrer" className="btn btn-secondary" style={{ padding: '8px 16px' }}>
+                    View Document
+                  </a>
+                  <button onClick={() => handleApproveDoc(doc.id, doc.type, doc.user_id)} className="btn btn-primary" style={{ padding: '8px 16px', background: 'var(--accent-green)', borderColor: 'var(--accent-green)' }}>
+                    <CheckCircle size={16} /> Approve
+                  </button>
+                  <button onClick={() => handleRejectDoc(doc.id)} className="btn btn-secondary" style={{ padding: '8px 16px', color: 'var(--accent-red)', borderColor: 'rgba(204,0,0,0.3)' }}>
+                    <XCircle size={16} /> Reject
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="card">

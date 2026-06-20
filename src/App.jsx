@@ -10,6 +10,7 @@ import Career from './pages/Career';
 import Contacts from './pages/Contacts';
 import Profile from './pages/Profile';
 import Messages from './pages/Messages';
+import RewardStore from './pages/RewardStore';
 
 function AppLayout({ children }) {
   return (
@@ -40,6 +41,7 @@ function App() {
         <Route path="/contacts" element={<AppLayout><Contacts /></AppLayout>} />
         <Route path="/profile" element={<AppLayout><Profile /></AppLayout>} />
         <Route path="/messages" element={<AppLayout><Messages /></AppLayout>} />
+        <Route path="/network/rewards" element={<AppLayout><RewardStore /></AppLayout>} />
         <Route path="/admin/dashboard" element={<AppLayout><AdminDashboard /></AppLayout>} />
         
         <Route path="*" element={<Navigate to="/" replace />} />
