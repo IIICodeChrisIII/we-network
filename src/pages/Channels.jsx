@@ -102,7 +102,7 @@ export default function Channels() {
       user_id: 'pending', // Will be overwritten
       content: content,
       created_at: new Date().toISOString(),
-      profiles: { first_name: 'Du', last_name: '(wird gesendet...)', role: 'user' }
+      profiles: { first_name: 'Du', last_name: '', role: 'user' }
     };
     
     setMessages(prev => [...prev, optimisticMsg]);
