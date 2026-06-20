@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Hash, Send, Users, ChevronUp, Search, Plus, X, MessageSquare, GraduationCap, BookOpen, ChevronDown, CheckCircle, ExternalLink } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { triggerRewardEvent } from '../lib/rewardEvents';
 import { GERMAN_UNIVERSITIES, findUniversity, getLogoUrl } from '../lib/universities';
 
 /*
@@ -308,6 +309,9 @@ export default function Channels() {
       return alert('Please log in first');
     }
     await supabase.from('messages').insert([{ channel_id: activeChannel.id, user_id: user.id, content }]);
+    
+    // Trigger Gamification Event (Fire & Forget to ensure Graceful Degradation)
+    triggerRewardEvent('message_sent', { userId: user.id });
   };
 
   // ── Hover card ────────────────────────────────────────────

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
-import { Newspaper, MessageSquare, Briefcase, Users, User, BarChart2, LogOut, Inbox, Sun, Moon } from 'lucide-react';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { Newspaper, MessageSquare, Briefcase, Users, User, BarChart2, LogOut, Inbox, Sun, Moon, ShoppingBag } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import weLogo from '../assets/we-logo.gif';
 
@@ -54,6 +54,7 @@ export default function Navbar() {
     { name: 'Nachrichten', path: '/messages', icon: <Inbox size={16} /> },
     { name: 'Kontakte', path: '/contacts', icon: <Users size={16} /> },
     { name: 'Karriere', path: '/career', icon: <Briefcase size={16} /> },
+    { name: 'Produkte', path: '/network/rewards', icon: <ShoppingBag size={16} /> },
     ...(profile && (profile.role === 'admin' || profile.role === 'analytics')
       ? [{ name: 'Analytics', path: '/admin/dashboard', icon: <BarChart2 size={16} /> }]
       : [])
