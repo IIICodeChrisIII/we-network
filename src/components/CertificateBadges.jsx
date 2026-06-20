@@ -1,4 +1,3 @@
-import React from 'react';
 import { getCertificates } from '../lib/certificates';
 
 // Discord-Style Badges, die vor dem Namen stehen. Hover über ein Badge
