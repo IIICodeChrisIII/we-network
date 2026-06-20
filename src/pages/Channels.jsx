@@ -16,6 +16,16 @@ import CertificateBadges from '../components/CertificateBadges';
   FOR INSERT WITH CHECK (
     auth.uid() IS NOT NULL AND name LIKE 'dm-%'
   );
+
+  CREATE POLICY "Students can create their university channel." ON public.channels
+  FOR INSERT WITH CHECK (
+    auth.uid() IS NOT NULL
+    AND name LIKE 'uni-%'
+    AND name = 'uni-' || lower(regexp_replace(
+      (SELECT university FROM public.profiles WHERE id = auth.uid()),
+      '[^a-z0-9]+', '-', 'g'
+    ))
+  );
 */
 
 const MESSAGES_LIMIT = 150;
@@ -138,6 +148,12 @@ export default function Channels() {
     fetchChannels();
   }, []);
 
+  // Auto-create the user's university channel on first visit
+  useEffect(() => {
+    if (!currentUser || loading) return;
+    ensureUniChannel(currentUser, channels);
+  }, [currentUser, loading]);
+
   useEffect(() => {
     if (!isLoadingMoreRef.current) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -210,6 +226,33 @@ export default function Channels() {
       if (first) setActiveChannel(first);
     }
     setLoading(false);
+  };
+
+  const ensureUniChannel = async (user, currentChannels) => {
+    if (!user?.university) return;
+    const uniName = `uni-${normalizeUni(user.university)}`;
+
+    // Already visible in the list — nothing to do
+    if (currentChannels.some(c => c.name === uniName)) return;
+
+    // Try to create it (idempotent: unique constraint on name means a duplicate silently fails)
+    const { data: inserted } = await supabase
+      .from('channels')
+      .insert({ name: uniName, description: user.university })
+      .select()
+      .single();
+
+    if (inserted) {
+      setChannels(prev => [...prev, inserted]);
+      return;
+    }
+
+    // Channel already existed but wasn't returned (e.g. created by someone else) — fetch it directly
+    const { data: existing } = await supabase
+      .from('channels').select('*').eq('name', uniName).single();
+    if (existing) {
+      setChannels(prev => prev.some(c => c.id === existing.id) ? prev : [...prev, existing]);
+    }
   };
 
   const fetchMessages = async (channelId) => {
