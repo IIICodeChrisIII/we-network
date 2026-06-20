@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Hash, Send, Users, ChevronUp, Search, Plus, X, MessageSquare, GraduationCap, BookOpen, ChevronDown, CheckCircle, ExternalLink } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { GERMAN_UNIVERSITIES, findUniversity, getLogoUrl } from '../lib/universities';
+import CertificateBadges from '../components/CertificateBadges';
 
 /*
   Required Supabase SQL (run once in SQL Editor):
@@ -454,7 +455,8 @@ export default function Channels() {
                   {msg.profiles?.avatar_url ? <img src={msg.profiles.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : avatar}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
+                    {!isTemp && <CertificateBadges profile={msg.profiles} max={3} />}
                     <span onMouseEnter={e => !isTemp && showHoverCard(e, msg)} onMouseLeave={hideHoverCard} style={{ fontWeight: 600, fontSize: '1rem', color: isSpecialist ? 'var(--accent-red)' : 'var(--text-primary)', cursor: isTemp ? 'default' : 'pointer' }}>
                       {name}
                     </span>
