@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MessageSquare, Mail, Award } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 export default function Contacts() {
+  const navigate = useNavigate();
   const [specialists, setSpecialists] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -47,7 +49,7 @@ export default function Contacts() {
                 </div>
 
                 <div style={{ display: 'flex', gap: '12px', width: '100%', marginTop: 'auto' }}>
-                  <button className="btn btn-primary" style={{ flex: 1, padding: '12px' }}>
+                  <button className="btn btn-primary" style={{ flex: 1, padding: '12px' }} onClick={() => navigate(`/messages?with=${spec.id}`)}>
                     <MessageSquare size={16} /> Message
                   </button>
                   <button className="btn btn-secondary" style={{ padding: '12px', borderRadius: 'var(--border-radius-pill)' }}>

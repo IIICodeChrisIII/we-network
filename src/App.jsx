@@ -9,6 +9,7 @@ import Channels from './pages/Channels';
 import Career from './pages/Career';
 import Contacts from './pages/Contacts';
 import Profile from './pages/Profile';
+import Messages from './pages/Messages';
 
 function AppLayout({ children }) {
   return (
@@ -33,6 +34,7 @@ function App() {
         <Route path="/career" element={<AppLayout><Career /></AppLayout>} />
         <Route path="/contacts" element={<AppLayout><Contacts /></AppLayout>} />
         <Route path="/profile" element={<AppLayout><Profile /></AppLayout>} />
+        <Route path="/messages" element={<AppLayout><Messages /></AppLayout>} />
         <Route path="/admin/dashboard" element={<AppLayout><AdminDashboard /></AppLayout>} />
         
         <Route path="*" element={<Navigate to="/" replace />} />

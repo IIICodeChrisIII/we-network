@@ -106,6 +106,16 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   transform: translateY(-3px);
 }
 
+.card-static {
+  transition: border-color var(--transition-normal);
+}
+
+.card-static:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: var(--border-color);
+}
+
 .card-accent {
   border-left: 3px solid var(--accent-red);
 }
