@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Newspaper, MessageSquare, Briefcase, Users, User, BarChart2, LogOut } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import weLogo from '../assets/we-logo.gif';
 
 export default function Navbar() {
   const [profile, setProfile] = useState(null);
@@ -54,8 +55,8 @@ export default function Navbar() {
   return (
     <nav className={`navbar ${hidden ? 'navbar--hidden' : ''}`}>
       <NavLink to="/" className="navbar-brand">
-        <span className="navbar-brand-accent">WE</span>
-        <span style={{ fontWeight: 400, marginLeft: '4px' }}>Network</span>
+        <img src={weLogo} className="navbar-logo" alt="Würth Elektronik" />
+        <span style={{ fontWeight: 400, marginLeft: '8px' }}>Network</span>
       </NavLink>
 
       <div className="navbar-nav">
