@@ -7,9 +7,17 @@
 
 import { createClient } from '@supabase/supabase-js';
 import WebSocket from 'ws';
+import * as dotenv from 'dotenv';
 
-const SUPABASE_URL = 'https://bbnvrugxtznxcxjdtszk.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJibnZydWd4dHpueGN4amR0c3prIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4OTA5MTYsImV4cCI6MjA5NzQ2NjkxNn0.FGRqcGgMB4cpqoDnqo3cFDTXGD4zcW-BjVoq4YVmmT8';
+dotenv.config();
+
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  console.error("Fehler: VITE_SUPABASE_URL oder VITE_SUPABASE_ANON_KEY fehlen in der .env Datei.");
+  process.exit(1);
+}
 
 const SB_OPTIONS = { realtime: { transport: WebSocket } };
 
