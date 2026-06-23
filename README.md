@@ -1,60 +1,64 @@
-# WE Network — Technisches Setup & Übersicht
+# WE Network — Technical Setup & Overview
 
-Dieses Repository enthält den Frontend-Code für das WE Network, eine Plattform zur Vernetzung von Studierenden und Würth Elektronik.
+> **Note:** This codebase was created as part of the **TUM Science Hackathon 2026**. Our team's objective was to build a platform for Würth Elektronik to connect and engage with students.
+
+This repository contains the frontend code for the WE Network, a platform designed to connect students with Würth Elektronik.
+
+📚 **Non-technical users / Recruiters:** Please see the [DOCUMENTATION.md](./DOCUMENTATION.md) for a complete overview of all features, roles, and user flows.
 
 ## Tech Stack
 
-Das Projekt ist eine Single-Page Application (SPA) und verwendet moderne Webtechnologien:
-- **Frontend-Framework:** React 18
-- **Build-Tool:** Vite 5
+The project is a Single-Page Application (SPA) utilizing modern web technologies:
+- **Frontend Framework:** React 18
+- **Build Tool:** Vite 5
 - **Routing:** React Router v6
-- **Styling:** Reines CSS mit CSS Variables (kein Tailwind)
+- **Styling:** Pure CSS with CSS Variables (no Tailwind)
 - **Icons:** Lucide React
 - **Charts:** Recharts
-- **Backend/Datenbank/Auth:** Supabase JS SDK v2 (PostgreSQL, GoTrue Auth, Realtime WebSockets)
+- **Backend/Database/Auth:** Supabase JS SDK v2 (PostgreSQL, GoTrue Auth, Realtime WebSockets)
 
-## Projektstruktur
+## Project Structure
 
-Die Struktur des `src/`-Verzeichnisses ist wie folgt aufgebaut:
-- `assets/`: Statische Dateien wie Logos und Bilder.
-- `components/`: Wiederverwendbare UI-Komponenten (z.B. Sidebar, Navigationsleisten, Talentpool-Formulare).
-- `lib/`: Hilfsscripte, insbesondere die Konfiguration für Supabase (`supabase.js`) und externe Daten (z.B. Universitäten).
-- `pages/`: Die einzelnen Ansichten der Anwendung (z.B. Landing, Login, News, Channels, Career).
-- `App.jsx` / `main.jsx`: Einstiegspunkte und Routing-Konfiguration.
-- `index.css`: Globale Styles und CSS-Variablen.
+The structure of the `src/` directory is organized as follows:
+- `assets/`: Static files such as logos and images.
+- `components/`: Reusable UI components (e.g., Sidebar, Navigation bars, Talent Pool forms).
+- `lib/`: Helper scripts, especially the Supabase configuration (`supabase.js`) and external data (e.g., universities).
+- `pages/`: The individual views of the application (e.g., Landing, Login, News, Channels, Career).
+- `App.jsx` / `main.jsx`: Entry points and routing configuration.
+- `index.css`: Global styles and CSS variables.
 
-## Technisches Setup
+## Technical Setup
 
-Um das Projekt lokal auszuführen, befolge diese Schritte:
+To run the project locally, follow these steps:
 
-### 1. Repository klonen und Abhängigkeiten installieren
+### 1. Clone the repository and install dependencies
 ```bash
 git clone <repo-url>
 cd we-network
 npm install
 ```
 
-### 2. Umgebungsvariablen konfigurieren
-Erstelle eine `.env.local` Datei im Hauptverzeichnis des Projekts und füge deine Supabase-Keys ein:
+### 2. Configure environment variables
+Create a `.env.local` file in the root directory of the project and insert your Supabase keys:
 ```env
-VITE_SUPABASE_URL=deine_supabase_url
-VITE_SUPABASE_ANON_KEY=dein_supabase_anon_key
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
-### 3. Datenbank Setup (Supabase)
-Führe die bereitgestellten SQL-Skripte im Supabase Dashboard unter "SQL Editor" aus:
-- Führe den Inhalt von `supabase/migrations/schema.sql` aus, um alle Tabellen und Row Level Security (RLS) Policies zu erstellen.
-- (Optional) Führe `supabase/migrations/002_insert_demo_jobs.sql` aus, um Test-Stellenangebote einzufügen.
+### 3. Database Setup (Supabase)
+Execute the provided SQL scripts in the Supabase Dashboard under "SQL Editor":
+- Run the contents of `supabase/migrations/schema.sql` to create all tables and Row Level Security (RLS) Policies.
+- (Optional) Run `supabase/migrations/002_insert_demo_jobs.sql` to insert test job listings.
 
-### 4. Entwicklungsserver starten
+### 4. Start the development server
 ```bash
 npm run dev
 ```
-Die Anwendung ist nun unter `http://localhost:5173` erreichbar.
+The application will now be accessible at `http://localhost:5173`.
 
-### 5. Testdaten (Optional)
-Du kannst Test-Benutzer und -Daten generieren, indem du folgende Skripte im Terminal ausführst:
+### 5. Test Data (Optional)
+You can generate test users and data by running the following scripts in the terminal:
 ```bash
-node create_test_accounts.js
+node scripts/create_test_accounts.js
 node scripts/seed-test-users.mjs
 ```

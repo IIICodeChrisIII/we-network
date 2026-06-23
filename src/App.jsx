@@ -11,6 +11,7 @@ import Contacts from './pages/Contacts';
 import Profile from './pages/Profile';
 import Messages from './pages/Messages';
 import RewardStore from './pages/RewardStore';
+import HackathonDisclaimer from './components/HackathonDisclaimer';
 
 function AppLayout({ children }) {
   return (
@@ -31,6 +32,7 @@ function App() {
 
   return (
     <Router>
+      <HackathonDisclaimer />
       <Routes>
         <Route path="/login" element={<Login />} />
         

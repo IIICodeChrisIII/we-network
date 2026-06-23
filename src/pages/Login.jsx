@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Mail, ArrowRight, GraduationCap, Calendar, Lock, Search, X, ChevronUp } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
 import { GERMAN_UNIVERSITIES, getLogoUrl, findUniversity } from '../lib/universities';
 
@@ -35,6 +36,7 @@ export default function Login() {
 
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
   const from = location.state?.from || '/';
 
   useEffect(() => {
@@ -88,9 +90,9 @@ export default function Login() {
           });
           if (profileError) {
             console.error('Profile creation error:', profileError);
-            alert(`Registered, but profile save failed: ${profileError.message}`);
+            alert(`${t('login.register_profile_fail')} ${profileError.message}`);
           } else {
-            alert('Registrierung erfolgreich! Bitte anmelden.');
+            alert(t('login.register_success'));
           }
         }
         setIsRegistering(false);
@@ -111,11 +113,11 @@ export default function Login() {
       <div className="login-bg-glow" />
 
       <div className="login-card">
-        <h2 className="login-heading">{isRegistering ? 'Create Account' : 'Welcome Back'}</h2>
+        <h2 className="login-heading">{isRegistering ? t('login.create_account') : t('login.welcome_back')}</h2>
         <p className="login-subheading">
           {isRegistering
-            ? <>Join the <span className="text-accent">Würth Elektronik</span> Network</>
-            : <>Log in to <span className="text-accent">Würth Elektronik</span> Network</>
+            ? <>{t('login.join')} <span className="text-accent">Würth Elektronik</span> {t('login.network_append')}</>
+            : <>{t('login.log_in_to')} <span className="text-accent">Würth Elektronik</span> {t('login.network_append')}</>
           }
         </p>
 
@@ -125,18 +127,18 @@ export default function Login() {
           {isRegistering && (
             <div className="form-row">
               <div className="input-group">
-                <label className="input-label">First Name</label>
+                <label className="input-label">{t('login.first_name')}</label>
                 <input type="text" required className="input-field" placeholder="Max" value={firstName} onChange={e => setFirstName(e.target.value)} />
               </div>
               <div className="input-group">
-                <label className="input-label">Last Name</label>
+                <label className="input-label">{t('login.last_name')}</label>
                 <input type="text" required className="input-field" placeholder="Mustermann" value={lastName} onChange={e => setLastName(e.target.value)} />
               </div>
             </div>
           )}
 
           <div className="input-group">
-            <label className="input-label">Email Address</label>
+            <label className="input-label">{t('login.email')}</label>
             <div className="input-with-icon">
               <Mail className="input-icon" size={18} />
               <input type="email" required className="input-field pl-10" placeholder="you@university.edu" value={email} onChange={e => setEmail(e.target.value)} />
@@ -144,7 +146,7 @@ export default function Login() {
           </div>
 
           <div className="input-group">
-            <label className="input-label">Password</label>
+            <label className="input-label">{t('login.password')}</label>
             <div className="input-with-icon">
               <Lock className="input-icon" size={18} />
               <input type="password" required className="input-field pl-10" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} />
@@ -155,7 +157,7 @@ export default function Login() {
             <>
               {/* ── University Dropdown ─────────────────────── */}
               <div className="input-group" ref={uniDropdownRef} style={{ position: 'relative' }}>
-                <label className="input-label">Hochschule</label>
+                <label className="input-label">{t('login.university')}</label>
 
                 {/* Trigger */}
                 <div
@@ -185,7 +187,7 @@ export default function Login() {
                   ) : (
                     <>
                       <Search size={15} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
-                      <span style={{ flex: 1, fontSize: '0.92rem', color: 'var(--text-muted)' }}>Hochschule auswählen...</span>
+                      <span style={{ flex: 1, fontSize: '0.92rem', color: 'var(--text-muted)' }}>{t('login.select_uni')}</span>
                       <ChevronUp size={14} style={{ color: 'var(--text-muted)', transform: showUniDropdown ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }} />
                     </>
                   )}
@@ -216,13 +218,13 @@ export default function Login() {
                         />
                       </div>
                       <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', margin: '5px 0 0' }}>
-                        {filteredUnis.length} Hochschulen
+                        {t('login.uni_count', { count: filteredUnis.length })}
                       </p>
                     </div>
                     {/* List */}
                     <div style={{ maxHeight: '240px', overflowY: 'auto' }}>
                       {filteredUnis.length === 0 ? (
-                        <p style={{ padding: '14px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>Keine Ergebnisse</p>
+                        <p style={{ padding: '14px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>{t('login.no_results')}</p>
                       ) : filteredUnis.map(uni => {
                         const isSelected = university === uni.name;
                         return (
@@ -257,14 +259,14 @@ export default function Login() {
 
               <div className="form-row">
                 <div className="input-group">
-                  <label className="input-label">Studiengang</label>
+                  <label className="input-label">{t('login.degree')}</label>
                   <div className="input-with-icon">
                     <GraduationCap className="input-icon" size={18} />
-                    <input type="text" required className="input-field pl-10" placeholder="z.B. Elektrotechnik" value={degree} onChange={e => setDegree(e.target.value)} />
+                    <input type="text" required className="input-field pl-10" placeholder={t('login.degree_placeholder')} value={degree} onChange={e => setDegree(e.target.value)} />
                   </div>
                 </div>
                 <div className="input-group">
-                  <label className="input-label">Semester</label>
+                  <label className="input-label">{t('login.semester')}</label>
                   <div className="input-with-icon">
                     <Calendar className="input-icon" size={18} />
                     <input type="number" required min="1" max="20" className="input-field pl-10" placeholder="1" value={semester} onChange={e => setSemester(e.target.value)} />
@@ -275,12 +277,12 @@ export default function Login() {
           )}
 
           <button type="submit" className="btn btn-primary login-btn" disabled={loading}>
-            {loading ? 'Verarbeitung...' : (isRegistering ? 'Registrieren' : 'Anmelden')} <ArrowRight size={18} />
+            {loading ? t('login.processing') : (isRegistering ? t('login.register') : t('login.login'))} <ArrowRight size={18} />
           </button>
         </form>
 
         <div className="divider">
-          <span>oder fortfahren mit</span>
+          <span>{t('login.or_continue_with')}</span>
         </div>
 
         <div className="sso-buttons">
@@ -293,16 +295,16 @@ export default function Login() {
             </svg>
             Google
           </button>
-          <button type="button" onClick={() => alert('SAML SSO via Shibboleth wird hier konfiguriert.')} className="btn btn-secondary sso-btn shibboleth-btn">
+          <button type="button" onClick={() => alert(t('login.saml_alert'))} className="btn btn-secondary sso-btn shibboleth-btn">
             <GraduationCap size={18} />
-            Uni Login (Shibboleth)
+            {t('login.uni_login')}
           </button>
         </div>
 
         <p className="toggle-mode">
-          {isRegistering ? 'Bereits registriert?' : 'Noch kein Konto?'}{' '}
+          {isRegistering ? t('login.already_registered') : t('login.no_account')}{' '}
           <button type="button" className="text-accent" style={{ fontWeight: 600 }} onClick={() => { setIsRegistering(!isRegistering); setUniversity(''); setUniSearch(''); }}>
-            {isRegistering ? 'Anmelden' : 'Hier registrieren'}
+            {isRegistering ? t('login.login') : t('login.register_here')}
           </button>
         </p>
       </div>

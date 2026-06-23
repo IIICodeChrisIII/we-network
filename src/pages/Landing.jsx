@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Newspaper, MessageSquare, Users, User, Briefcase, BarChart2, ArrowRight, ChevronLeft, ChevronRight, Package } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import Footer from '../components/Footer';
 import hero1 from '../assets/hero-1.webp';
 import hero2 from '../assets/hero-2.avif';
@@ -8,49 +9,50 @@ import hero3 from '../assets/hero-3.avif';
 
 const heroImages = [hero1, hero2, hero3];
 
-const brackets = [
-  {
-    num: '01',
-    eyebrow: 'Community',
-    title: 'Austausch & News',
-    desc: 'Bleib auf dem Laufenden und vernetze dich in Echtzeit mit dem Team.',
-    links: [
-      { name: 'Feed', path: '/feed', icon: <Newspaper size={18} /> },
-      { name: 'Live Channels', path: '/channels', icon: <MessageSquare size={18} /> },
-    ],
-  },
-  {
-    num: '02',
-    eyebrow: 'Netzwerk',
-    title: 'Kontakte & Profil',
-    desc: 'Finde Ansprechpartner und Spezialisten und pflege dein eigenes Profil.',
-    links: [
-      { name: 'Kontakte', path: '/contacts', icon: <Users size={18} /> },
-      { name: 'Mein Profil', path: '/profile', icon: <User size={18} /> },
-    ],
-  },
-  {
-    num: '03',
-    eyebrow: 'Karriere',
-    title: 'Praktika & Jobs',
-    desc: 'Entdecke Einstiegsmöglichkeiten und offene Stellen bei Würth Elektronik.',
-    links: [
-      { name: 'Karriereportal', path: '/career', icon: <Briefcase size={18} /> },
-    ],
-  },
-  {
-    num: '04',
-    eyebrow: 'Produkte',
-    title: 'Bauteile & Lösungen',
-    desc: 'Erfahre mehr über die Produkte und Lösungen von Würth Elektronik.',
-    links: [
-      { name: 'Produkte entdecken', path: '/network/rewards', icon: <Package size={18} /> },
-    ],
-  },
-];
-
 export default function Landing() {
   const [slide, setSlide] = useState(0);
+  const { t } = useTranslation();
+
+  const brackets = [
+    {
+      num: '01',
+      eyebrow: t('landing.eyebrow_1'),
+      title: t('landing.title_1'),
+      desc: t('landing.desc_1'),
+      links: [
+        { name: t('landing.link_feed'), path: '/feed', icon: <Newspaper size={18} /> },
+        { name: t('landing.link_channels'), path: '/channels', icon: <MessageSquare size={18} /> },
+      ],
+    },
+    {
+      num: '02',
+      eyebrow: t('landing.eyebrow_2'),
+      title: t('landing.title_2'),
+      desc: t('landing.desc_2'),
+      links: [
+        { name: t('landing.link_contacts'), path: '/contacts', icon: <Users size={18} /> },
+        { name: t('landing.link_profile'), path: '/profile', icon: <User size={18} /> },
+      ],
+    },
+    {
+      num: '03',
+      eyebrow: t('landing.eyebrow_3'),
+      title: t('landing.title_3'),
+      desc: t('landing.desc_3'),
+      links: [
+        { name: t('landing.link_career'), path: '/career', icon: <Briefcase size={18} /> },
+      ],
+    },
+    {
+      num: '04',
+      eyebrow: t('landing.eyebrow_4'),
+      title: t('landing.title_4'),
+      desc: t('landing.desc_4'),
+      links: [
+        { name: t('landing.link_products'), path: '/network/rewards', icon: <Package size={18} /> },
+      ],
+    },
+  ];
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -80,20 +82,19 @@ export default function Landing() {
             <div className="hero-scrim" />
           </div>
 
-          <button className="hero-arrow hero-arrow-prev" onClick={() => goTo(slide - 1)} aria-label="Vorheriges Bild">
+          <button className="hero-arrow hero-arrow-prev" onClick={() => goTo(slide - 1)} aria-label={t('landing.prev_img')}>
             <ChevronLeft size={26} />
           </button>
-          <button className="hero-arrow hero-arrow-next" onClick={() => goTo(slide + 1)} aria-label="Nächstes Bild">
+          <button className="hero-arrow hero-arrow-next" onClick={() => goTo(slide + 1)} aria-label={t('landing.next_img')}>
             <ChevronRight size={26} />
           </button>
 
           <div className="hero-content">
             <span className="landing-hero-eyebrow">WE Network</span>
-            <h1 className="landing-hero-title">Willkommen im<br />Würth Elektronik Network</h1>
-            <p className="landing-hero-tagline">More than you expect</p>
+            <h1 className="landing-hero-title" dangerouslySetInnerHTML={{ __html: t('landing.welcome_html') }} />
+            <p className="landing-hero-tagline">{t('landing.tagline')}</p>
             <p className="landing-hero-desc">
-              Die zentrale Plattform für Studenten, Praktikanten und Mitarbeiter –
-              vernetzen, austauschen und Karrieremöglichkeiten entdecken.
+              {t('landing.hero_desc')}
             </p>
           </div>
 
