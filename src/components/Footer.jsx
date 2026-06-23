@@ -60,10 +60,10 @@ export default function Footer() {
 
         <div className="footer-bottom">
           <div className="footer-bottom-links">
-            <a className="footer-link" href={WE} target="_blank" rel="noopener noreferrer">{t('footer.contact')}</a>
-            <a className="footer-link" href={`${WE}/impressum`} target="_blank" rel="noopener noreferrer">{t('footer.imprint')}</a>
-            <a className="footer-link" href={`${WE}/datenschutz`} target="_blank" rel="noopener noreferrer">{t('footer.privacy')}</a>
-            <a className="footer-link" href={WE} target="_blank" rel="noopener noreferrer">{t('footer.cookies')}</a>
+            <a className="footer-link" href="#" onClick={e => e.preventDefault()} target="_blank" rel="noopener noreferrer">{t('footer.contact')}</a>
+            <a className="footer-link" href="#" onClick={e => e.preventDefault()} target="_blank" rel="noopener noreferrer">{t('footer.imprint')}</a>
+            <a className="footer-link" href="#" onClick={e => e.preventDefault()} target="_blank" rel="noopener noreferrer">{t('footer.privacy')}</a>
+            <a className="footer-link" href="#" onClick={e => e.preventDefault()} target="_blank" rel="noopener noreferrer">{t('footer.cookies')}</a>
           </div>
           <div className="footer-copy">© 2026 Würth Elektronik eiSos GmbH &amp; Co. KG, Deutschland</div>
         </div>

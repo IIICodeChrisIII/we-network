@@ -6,6 +6,18 @@ This repository contains the frontend code for the WE Network, a platform design
 
 📚 **Non-technical users / Recruiters:** Please see the [DOCUMENTATION.md](./DOCUMENTATION.md) for a complete overview of all features, roles, and user flows.
 
+### 🔑 Demo Accounts
+
+You can explore the platform using the following pre-configured test accounts:
+
+**Admin Account** (Access to Job Management, Talent Pool Database, and Admin Dashboards):
+- **Email:** `admin@wuerth-test.de`
+- **Password:** `WuerthAdmin2026!`
+
+**Student / User Account** (Access to Career Portal, Live Channels, and AI Assistant):
+- **Email:** `max.mustermann@wuerth-test.de`
+- **Password:** `WuerthTest2026!`
+
 ## Tech Stack
 
 The project is a Single-Page Application (SPA) utilizing modern web technologies:
