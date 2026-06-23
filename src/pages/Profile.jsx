@@ -5,6 +5,7 @@ import { GERMAN_UNIVERSITIES, getLogoUrl, findUniversity } from '../lib/universi
 import NodeBalance from '../components/NodeBalance';
 import { getCertificates, CATEGORY_LABEL } from '../lib/certificates';
 import CertificateBadges from '../components/CertificateBadges';
+import { useTranslation } from 'react-i18next';
 
 function UniLogo({ domain, name, size = 22 }) {
   const [error, setError] = useState(false);
@@ -40,6 +41,7 @@ export default function Profile() {
   const [showUniDropdown, setShowUniDropdown] = useState(false);
   const uniDropdownRef = useRef(null);
   const uniInputRef = useRef(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     fetchProfileAndDocs();
@@ -85,7 +87,7 @@ export default function Profile() {
           file_data: reader.result
         });
         if (!error) {
-          alert('Document uploaded successfully! It is now pending admin review.');
+          alert(t('profile.msg_doc_success'));
           const { data: docs } = await supabase.from('user_documents').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
           if (docs) setDocuments(docs);
         } else {
@@ -103,8 +105,8 @@ export default function Profile() {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
       const { error } = await supabase.from('profiles').upsert({ id: user.id, ...profile });
-      if (!error) alert('Profile saved!');
-      else alert('Error saving profile');
+      if (!error) alert(t('profile.msg_profile_saved'));
+      else alert(t('profile.msg_profile_error'));
     }
     setSaving(false);
   };
@@ -135,8 +137,8 @@ export default function Profile() {
     <div className="page-content animate-fade-in" style={{ maxWidth: '800px' }}>
       <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
-          <h1 className="page-title">Profil</h1>
-          <p className="page-description">Manage your personal information and career status.</p>
+          <h1 className="page-title">{t('profile.title')}</h1>
+          <p className="page-description">{t('profile.description')}</p>
         </div>
         <NodeBalance userId={profile?.id} />
       </div>
@@ -154,7 +156,7 @@ export default function Profile() {
           </div>
           <div>
             <label className="btn btn-secondary" style={{ marginBottom: '8px', cursor: 'pointer', display: 'inline-block' }}>
-              Upload Photo
+              {t('profile.upload_photo')}
               <input
                 type="file"
                 accept="image/png, image/jpeg, image/webp"
@@ -169,7 +171,7 @@ export default function Profile() {
                 }}
               />
             </label>
-            <p className="text-secondary" style={{ fontSize: '0.85rem' }}>JPG or PNG, max 2MB</p>
+            <p className="text-secondary" style={{ fontSize: '0.85rem' }}>{t('profile.upload_hint')}</p>
             {certs.length > 0 && (
               <div style={{ marginTop: '12px' }}>
                 <CertificateBadges profile={profile} max={8} size={22} />
@@ -181,38 +183,38 @@ export default function Profile() {
         {/* Name */}
         <div className="form-row">
           <div className="input-group">
-            <label className="input-label">First Name</label>
+            <label className="input-label">{t('profile.first_name')}</label>
             <input type="text" className="input-field" value={profile.first_name || ''} onChange={e => setProfile({ ...profile, first_name: e.target.value })} />
           </div>
           <div className="input-group">
-            <label className="input-label">Last Name</label>
+            <label className="input-label">{t('profile.last_name')}</label>
             <input type="text" className="input-field" value={profile.last_name || ''} onChange={e => setProfile({ ...profile, last_name: e.target.value })} />
           </div>
         </div>
 
         {/* Bio */}
         <div className="input-group">
-          <label className="input-label">Bio</label>
+          <label className="input-label">{t('profile.bio')}</label>
           <textarea className="input-field" rows="3" value={profile.bio || ''} onChange={e => setProfile({ ...profile, bio: e.target.value })} style={{ resize: 'vertical' }} />
         </div>
 
         {/* Status */}
         <div className="input-group">
-          <label className="input-label">Current Status</label>
+          <label className="input-label">{t('profile.current_status')}</label>
           <div className="input-with-icon">
             <Briefcase className="input-icon" size={18} />
             <select className="input-field pl-10" value={profile.status || 'student'} onChange={e => setProfile({ ...profile, status: e.target.value })} style={{ appearance: 'none' }}>
-              <option value="student">Student</option>
-              <option value="intern">Intern at Würth</option>
-              <option value="working_student">Working Student at Würth</option>
-              <option value="employee">Employee</option>
+              <option value="student">{t('profile.status_student')}</option>
+              <option value="intern">{t('profile.status_intern')}</option>
+              <option value="working_student">{t('profile.status_working_student')}</option>
+              <option value="employee">{t('profile.status_employee')}</option>
             </select>
           </div>
         </div>
 
         {/* ── University Picker ─────────────────────────────── */}
         <div className="input-group" style={{ marginBottom: '8px' }}>
-          <label className="input-label">University</label>
+          <label className="input-label">{t('profile.university')}</label>
 
           <div ref={uniDropdownRef} style={{ position: 'relative' }}>
             {/* Trigger */}
@@ -248,7 +250,7 @@ export default function Profile() {
               ) : (
                 <>
                   <Search size={16} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
-                  <span style={{ fontSize: '0.95rem', color: 'var(--text-muted)', flex: 1 }}>Hochschule auswählen...</span>
+                  <span style={{ fontSize: '0.95rem', color: 'var(--text-muted)', flex: 1 }}>{t('profile.select_university')}</span>
                   <ChevronDown size={16} style={{ color: 'var(--text-muted)', transform: showUniDropdown ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }} />
                 </>
               )}
@@ -265,7 +267,7 @@ export default function Profile() {
                     <input
                       ref={uniInputRef}
                       type="text"
-                      placeholder="Suchen nach Name oder Stadt..."
+                      placeholder={t('profile.search_university')}
                       value={uniSearch}
                       onChange={e => setUniSearch(e.target.value)}
                       style={{ width: '100%', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', borderRadius: 'var(--border-radius-sm)', padding: '8px 10px 8px 32px', color: 'var(--text-primary)', fontSize: '0.85rem', outline: 'none' }}
@@ -274,7 +276,7 @@ export default function Profile() {
                     />
                   </div>
                   <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '6px', marginBottom: 0 }}>
-                    {filteredUnis.length} {filteredUnis.length === 1 ? 'Hochschule' : 'Hochschulen'} gefunden
+                    {filteredUnis.length} {t('profile.uni_found')}
                   </p>
                 </div>
 
@@ -282,7 +284,7 @@ export default function Profile() {
                 <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
                   {filteredUnis.length === 0 ? (
                     <p style={{ padding: '16px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                      Keine Hochschule gefunden.
+                      {t('profile.no_uni_found')}
                     </p>
                   ) : (
                     filteredUnis.map(uni => {
@@ -325,18 +327,18 @@ export default function Profile() {
         {/* ── Degree & Semester ─────────────────────────────── */}
         <div className="form-row" style={{ marginTop: '16px' }}>
           <div className="input-group">
-            <label className="input-label">Studienfach / Degree</label>
-            <input type="text" className="input-field" placeholder="z.B. Informatik" value={profile.degree || ''} onChange={e => setProfile({ ...profile, degree: e.target.value })} />
+            <label className="input-label">{t('profile.degree')}</label>
+            <input type="text" className="input-field" placeholder={t('profile.degree_placeholder')} value={profile.degree || ''} onChange={e => setProfile({ ...profile, degree: e.target.value })} />
           </div>
           <div className="input-group">
-            <label className="input-label">Semester</label>
-            <input type="number" min="1" className="input-field" placeholder="z.B. 3" value={profile.semester || ''} onChange={e => setProfile({ ...profile, semester: e.target.value })} />
+            <label className="input-label">{t('profile.semester')}</label>
+            <input type="number" min="1" className="input-field" placeholder={t('profile.semester_placeholder')} value={profile.semester || ''} onChange={e => setProfile({ ...profile, semester: e.target.value })} />
           </div>
         </div>
 
         {/* ── Career Timeline ─────────────────────────────── */}
         <div style={{ marginTop: '32px', marginBottom: '16px' }}>
-          <h3 style={{ fontSize: '1.1rem', marginBottom: '16px', color: 'var(--text-primary)' }}>Your Würth Journey</h3>
+          <h3 style={{ fontSize: '1.1rem', marginBottom: '16px', color: 'var(--text-primary)' }}>{t('profile.journey_title')}</h3>
           <div style={{ padding: '24px', background: 'var(--bg-secondary)', borderRadius: 'var(--border-radius-lg)', border: '1px solid var(--border-color)' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
               
@@ -349,7 +351,7 @@ export default function Profile() {
                   <div style={{ width: '2px', height: '40px', background: (profile.status === 'intern' || profile.status === 'working_student' || profile.status === 'employee') ? 'var(--accent-red)' : 'var(--border-color)', margin: '4px 0' }} />
                 </div>
                 <div style={{ paddingBottom: '24px' }}>
-                  <h4 style={{ margin: '0 0 4px 0', fontSize: '1rem', color: 'var(--text-primary)' }}>Beitritt ins Wörth Netzwerk</h4>
+                  <h4 style={{ margin: '0 0 4px 0', fontSize: '1rem', color: 'var(--text-primary)' }}>{t('profile.journey_join')}</h4>
                   <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>März 2024</span>
                 </div>
               </div>
@@ -365,7 +367,7 @@ export default function Profile() {
                   </div>
                   <div style={{ paddingBottom: '24px' }}>
                     <h4 style={{ margin: '0 0 4px 0', fontSize: '1rem', color: 'var(--text-primary)' }}>
-                      {profile.status === 'working_student' ? 'Start als Werkstudent' : 'Start Praktikum'}
+                      {profile.status === 'working_student' ? t('profile.journey_start_working_student') : t('profile.journey_start_intern')}
                     </h4>
                     <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Oktober 2024</span>
                   </div>
@@ -381,8 +383,8 @@ export default function Profile() {
                     </div>
                   </div>
                   <div>
-                    <h4 style={{ margin: '0 0 4px 0', fontSize: '1rem', color: 'var(--text-primary)' }}>Übernahme in Festanstellung</h4>
-                    <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Heute</span>
+                    <h4 style={{ margin: '0 0 4px 0', fontSize: '1rem', color: 'var(--text-primary)' }}>{t('profile.journey_employee')}</h4>
+                    <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{t('profile.today')}</span>
                   </div>
                 </div>
               )}
@@ -394,7 +396,7 @@ export default function Profile() {
         {/* Save */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '28px', borderTop: '1px solid var(--border-color)', paddingTop: '24px' }}>
           <button className="btn btn-primary" onClick={saveProfile} disabled={saving}>
-            <Save size={18} /> {saving ? 'Saving...' : 'Save Changes'}
+            <Save size={18} /> {saving ? t('profile.btn_saving') : t('profile.btn_save')}
           </button>
         </div>
       </div>
@@ -403,16 +405,16 @@ export default function Profile() {
       <div className="card" style={{ marginBottom: '24px' }}>
         <div className="flex-between" style={{ marginBottom: '20px' }}>
           <div>
-            <h3 style={{ fontSize: '1.15rem', marginBottom: '2px' }}>Zertifikate &amp; Status</h3>
+            <h3 style={{ fontSize: '1.15rem', marginBottom: '2px' }}>{t('profile.certs_title')}</h3>
             <p className="text-secondary" style={{ fontSize: '0.85rem' }}>
-              Deine verifizierten Status und Event-Teilnahmen.
+              {t('profile.certs_desc')}
             </p>
           </div>
           <span className="badge badge-red">{certs.length}</span>
         </div>
 
         {certs.length === 0 ? (
-          <p className="text-secondary" style={{ fontSize: '0.9rem' }}>Noch keine Zertifikate.</p>
+          <p className="text-secondary" style={{ fontSize: '0.9rem' }}>{t('profile.no_certs')}</p>
         ) : (
           <div className="cert-list">
             {certs.map((c) => {
@@ -441,23 +443,23 @@ export default function Profile() {
       {/* ── Dokumenten-Upload ──────────────────────────── */}
       <div className="card">
         <div style={{ marginBottom: '20px' }}>
-          <h3 style={{ fontSize: '1.15rem', marginBottom: '2px' }}>Dokumenten-Upload</h3>
+          <h3 style={{ fontSize: '1.15rem', marginBottom: '2px' }}>{t('profile.doc_upload_title')}</h3>
           <p className="text-secondary" style={{ fontSize: '0.85rem' }}>
-            Lade Nachweise hoch, um Badges oder Zertifikate freizuschalten. Die Überprüfung erfolgt durch einen Admin.
+            {t('profile.doc_upload_desc')}
           </p>
         </div>
 
         <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', marginBottom: '24px', flexWrap: 'wrap' }}>
           <div className="input-group" style={{ flex: '1', minWidth: '200px' }}>
-            <label className="input-label">Dokumententyp</label>
+            <label className="input-label">{t('profile.doc_type')}</label>
             <select className="input-field" value={docType} onChange={e => setDocType(e.target.value)}>
-              <option value="student_verification">Nachweis: Immatrikulationsbescheinigung</option>
-              <option value="certificate">Zertifikat (Event, Workshop, etc.)</option>
+              <option value="student_verification">{t('profile.doc_type_imma')}</option>
+              <option value="certificate">{t('profile.doc_type_cert')}</option>
             </select>
           </div>
           <div className="input-group" style={{ flex: '1', minWidth: '200px', display: 'flex', alignItems: 'flex-end' }}>
             <label className="btn btn-secondary" style={{ width: '100%', display: 'flex', justifyContent: 'center', cursor: 'pointer' }}>
-              {uploadingDoc ? 'Uploading...' : <><UploadCloud size={18} style={{ marginRight: '8px' }}/> Datei auswählen & hochladen</>}
+              {uploadingDoc ? t('profile.doc_uploading') : <><UploadCloud size={18} style={{ marginRight: '8px' }}/> {t('profile.doc_upload_btn')}</>}
               <input
                 type="file"
                 accept="application/pdf, image/png, image/jpeg, image/webp"
@@ -471,7 +473,7 @@ export default function Profile() {
 
         {documents.length > 0 && (
           <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
-            <h4 style={{ fontSize: '0.95rem', marginBottom: '12px', color: 'var(--text-secondary)' }}>Deine Uploads</h4>
+            <h4 style={{ fontSize: '0.95rem', marginBottom: '12px', color: 'var(--text-secondary)' }}>{t('profile.your_uploads')}</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {documents.map(doc => (
                 <div key={doc.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', background: 'var(--bg-secondary)', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border-color)' }}>
@@ -482,14 +484,14 @@ export default function Profile() {
                     <div>
                       <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 500, color: 'var(--text-primary)' }}>{doc.file_name}</p>
                       <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                        {doc.type === 'student_verification' ? 'Immatrikulationsbescheinigung' : 'Zertifikat'} • {new Date(doc.created_at).toLocaleDateString()}
+                        {doc.type === 'student_verification' ? t('profile.doc_type_imma') : t('profile.doc_type_cert')} • {new Date(doc.created_at).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
                   <div>
-                    {doc.status === 'pending' && <span className="badge" style={{ background: 'rgba(234,179,8,0.1)', color: '#eab308' }}><Clock size={12} style={{ marginRight: '4px' }}/> Ausstehend</span>}
-                    {doc.status === 'approved' && <span className="badge" style={{ background: 'rgba(34,197,94,0.1)', color: '#22c55e' }}><CheckCircle size={12} style={{ marginRight: '4px' }}/> Genehmigt</span>}
-                    {doc.status === 'rejected' && <span className="badge" style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}><AlertCircle size={12} style={{ marginRight: '4px' }}/> Abgelehnt</span>}
+                    {doc.status === 'pending' && <span className="badge" style={{ background: 'rgba(234,179,8,0.1)', color: '#eab308' }}><Clock size={12} style={{ marginRight: '4px' }}/> {t('profile.status_pending')}</span>}
+                    {doc.status === 'approved' && <span className="badge" style={{ background: 'rgba(34,197,94,0.1)', color: '#22c55e' }}><CheckCircle size={12} style={{ marginRight: '4px' }}/> {t('profile.status_approved')}</span>}
+                    {doc.status === 'rejected' && <span className="badge" style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}><AlertCircle size={12} style={{ marginRight: '4px' }}/> {t('profile.status_rejected')}</span>}
                   </div>
                 </div>
               ))}

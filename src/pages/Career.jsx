@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, Clock, Briefcase, BarChart3 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
 import StudentTalentForm from '../components/StudentTalentForm';
 import TalentPoolBrowser from '../components/TalentPoolBrowser';
@@ -11,6 +12,7 @@ export default function Career() {
   const [currentUser, setCurrentUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [activeTab, setActiveTab] = useState('jobs'); // jobs, talent-pool, talent-form, job-management
+  const { t } = useTranslation();
 
   useEffect(() => {
     loadUserData();
@@ -61,10 +63,10 @@ export default function Career() {
   const isStudent = userProfile?.status === 'student';
 
   const tabs = [
-    { id: 'jobs', label: '📋 Stellenangebote', icon: Briefcase, show: true },
-    { id: 'talent-pool', label: '👥 Talentpool', icon: BarChart3, show: isAdmin },
-    { id: 'talent-form', label: '✨ Mein Profil', icon: BarChart3, show: isStudent },
-    { id: 'job-management', label: '⚙️ Stellenverwaltung', icon: BarChart3, show: isAdmin },
+    { id: 'jobs', label: t('career.tab_jobs'), icon: Briefcase, show: true },
+    { id: 'talent-pool', label: t('career.tab_talent_pool'), icon: BarChart3, show: isAdmin },
+    { id: 'talent-form', label: t('career.tab_my_profile'), icon: BarChart3, show: isStudent },
+    { id: 'job-management', label: t('career.tab_job_mgmt'), icon: BarChart3, show: isAdmin },
   ];
 
   const visibleTabs = tabs.filter(t => t.show);
@@ -75,8 +77,8 @@ export default function Career() {
         {/* Header */}
         <div className="page-header">
           <div>
-            <h1 className="page-title">Career Hub</h1>
-            <p className="page-description">Entdecke Karrieremöglichkeiten bei Würth Elektronik</p>
+            <h1 className="page-title">{t('career.title')}</h1>
+            <p className="page-description">{t('career.description')}</p>
           </div>
         </div>
 
@@ -116,16 +118,16 @@ export default function Career() {
           <div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px' }}>
               {loading ? (
-                <p style={{ color: 'var(--text-muted)' }}>Stellen werden geladen...</p>
+                <p style={{ color: 'var(--text-muted)' }}>{t('career.loading')}</p>
               ) : jobs.length === 0 ? (
-                <p style={{ color: 'var(--text-muted)' }}>Momentan keine Stellenangebote verfügbar</p>
+                <p style={{ color: 'var(--text-muted)' }}>{t('career.no_jobs')}</p>
               ) : (
                 jobs.map(job => (
                   <div key={job.id} className="card card-accent" style={{ display: 'flex', alignItems: 'center', gap: '24px', padding: '32px' }}>
                     <div style={{ flex: 1 }}>
                       <div className="flex-between" style={{ marginBottom: '12px' }}>
                         <h3 style={{ fontSize: '1.4rem', fontWeight: 700, color: 'var(--text-primary)' }}>{job.title}</h3>
-                        <span className="badge badge-green">Aktiv</span>
+                        <span className="badge badge-green">{t('career.badge_active')}</span>
                       </div>
 
                       <h4 style={{ color: 'var(--accent-red)', fontSize: '1.05rem', fontWeight: 600, marginBottom: '16px' }}>
@@ -133,7 +135,7 @@ export default function Career() {
                       </h4>
 
                       <p style={{ color: 'var(--text-secondary)', marginBottom: '24px', lineHeight: '1.6', fontSize: '1rem', maxWidth: '800px' }}>
-                        {job.description || `Spannende Gelegenheit im Bereich ${job.department}. Wir suchen Talente für unser motiviertes Team!`}
+                        {job.description || t('career.fallback_desc').replace('{{department}}', job.department)}
                       </p>
 
                       <div style={{ display: 'flex', alignItems: 'center', gap: '24px', color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 500 }}>
@@ -141,7 +143,7 @@ export default function Career() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                           <Briefcase size={16} />
                           <span>
-                            {job.type === 'internship' ? '🎓 Praktikum' : job.type === 'working_student' ? '💼 HiWi' : '👔 Vollzeit'}
+                            {job.type === 'internship' ? t('career.type_internship') : job.type === 'working_student' ? t('career.type_working_student') : t('career.type_fulltime')}
                           </span>
                         </div>
                       </div>
@@ -149,7 +151,7 @@ export default function Career() {
 
                     <div style={{ paddingLeft: '24px', borderLeft: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                       <button className="btn btn-primary" style={{ padding: '12px 28px', fontSize: '1rem' }}>
-                        Details
+                        {t('career.btn_details')}
                       </button>
                     </div>
                   </div>
@@ -162,7 +164,7 @@ export default function Career() {
         {activeTab === 'talent-form' && userProfile && (
           <StudentTalentForm
             userProfile={userProfile}
-            onSaved={() => console.log('Profil gespeichert')}
+            onSaved={() => console.log(t('career.profile_saved'))}
           />
         )}
 

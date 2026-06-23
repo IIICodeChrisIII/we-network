@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { triggerRewardEvent } from '../lib/rewardEvents';
 import { GERMAN_UNIVERSITIES, findUniversity, getLogoUrl } from '../lib/universities';
 import CertificateBadges from '../components/CertificateBadges';
+import { useTranslation } from 'react-i18next';
 
 /*
   Required Supabase SQL (run once in SQL Editor):
@@ -68,11 +69,11 @@ function chanIconColor(name = '') {
   return 'var(--ch-brand)';
 }
 
-function displayName(ch) {
+function displayName(ch, t) {
   if (!ch) return '';
   const n = ch.name || '';
   if (n.startsWith('uni-')) return n.slice(4).replace(/-/g, ' ');
-  if (n.startsWith('dm-')) return 'Direktnachricht';
+  if (n.startsWith('dm-')) return t('channels.dm');
   return n.replace(/-/g, ' ');
 }
 
@@ -93,12 +94,12 @@ function avatarStyle(name = '', size = 36) {
   };
 }
 
-function groupChannels(channels) {
+function groupChannels(channels, t) {
   const unis = channels.filter(c => c.name.startsWith('uni-'));
   const rest = channels.filter(c => !c.name.startsWith('dm-') && !c.name.startsWith('uni-'));
   const groups = [];
-  if (unis.length) groups.push({ id: 'uni', label: 'Hochschul-Kanäle', icon: 'school', color: 'var(--ch-blue)', channels: unis });
-  if (rest.length) groups.push({ id: 'topic', label: 'Öffentliche Kanäle', icon: 'tag', color: 'var(--ch-text-3)', channels: rest });
+  if (unis.length) groups.push({ id: 'uni', label: t('channels.group_uni'), icon: 'school', color: 'var(--ch-blue)', channels: unis });
+  if (rest.length) groups.push({ id: 'topic', label: t('channels.group_topic'), icon: 'tag', color: 'var(--ch-text-3)', channels: rest });
   return groups;
 }
 
@@ -141,6 +142,7 @@ export default function Channels() {
   const lastTimestampRef = useRef(null);
   const isLoadingMoreRef = useRef(false);
   const hoverTimeoutRef = useRef(null);
+  const { t } = useTranslation();
 
   // ── init ────────────────────────────────────────────────────────────────
 
@@ -297,7 +299,7 @@ export default function Channels() {
     setMessages(prev => [...prev, {
       id: tempId, channel_id: activeChannel.id, user_id: 'pending', content,
       created_at: new Date().toISOString(),
-      profiles: { first_name: me?.first_name || 'Du', last_name: me?.last_name || '', role: me?.role },
+      profiles: { first_name: me?.first_name || t('channels.you'), last_name: me?.last_name || '', role: me?.role },
     }]);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setMessages(prev => prev.filter(m => m.id !== tempId)); return; }
@@ -313,7 +315,7 @@ export default function Channels() {
     const name = genericName.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
     const { data, error } = await supabase.from('channels').insert({ name }).select().single();
     setCreating(false);
-    if (error) { alert('Konnte Channel nicht erstellen.'); return; }
+    if (error) { alert(t('channels.err_create_channel')); return; }
     setChannels(prev => [...prev, data]);
     setActiveChannel(data);
     setShowModal(false);
@@ -332,7 +334,7 @@ export default function Channels() {
 
   const addThreadReply = () => {
     if (!threadReply.trim() || !threadMsgId) return;
-    const name = currentUser ? `${currentUser.first_name} ${currentUser.last_name}`.trim() : 'Du';
+    const name = currentUser ? `${currentUser.first_name} ${currentUser.last_name}`.trim() : t('channels.you');
     const reply = { author: name, text: threadReply.trim(), time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
     setLocalThreads(prev => ({ ...prev, [threadMsgId]: [...(prev[threadMsgId] || []), reply] }));
     setThreadReply('');
@@ -365,12 +367,12 @@ export default function Channels() {
     return normalizeUni(currentUser?.university) === ch.name.slice(4);
   });
 
-  const groups = groupChannels(visibleChannels);
+  const groups = groupChannels(visibleChannels, t);
 
   const threadMsg = threadMsgId ? messages.find(m => m.id === threadMsgId) : null;
   const threadReplies = threadMsgId ? (localThreads[threadMsgId] || []) : [];
 
-  const activeName = activeChannel ? displayName(activeChannel) : 'Channels';
+  const activeName = activeChannel ? displayName(activeChannel, t) : 'Channels';
   const activeIcon = activeChannel ? chanIcon(activeChannel.name) : 'tag';
   const activeIconBg = activeChannel ? chanIconBg(activeChannel.name) : 'var(--ch-brand-tint)';
   const activeIconColor = activeChannel ? chanIconColor(activeChannel.name) : 'var(--ch-brand)';
@@ -438,7 +440,7 @@ export default function Channels() {
               <input
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                placeholder="Channels durchsuchen…"
+                placeholder={t('channels.search_placeholder')}
                 style={{
                   width: '100%', height: 40, border: '1px solid var(--border-color)',
                   background: 'var(--bg-tertiary)', borderRadius: 11,
@@ -463,7 +465,7 @@ export default function Channels() {
                 onMouseOut={e => { e.currentTarget.style.borderColor = 'var(--border-hover)'; e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.background = 'transparent'; }}
               >
                 <span className="ms" style={{ fontSize: 18 }}>add</span>
-                <span>Neuer Channel</span>
+                <span>{t('channels.btn_new_channel')}</span>
               </button>
             )}
           </div>
@@ -481,7 +483,7 @@ export default function Channels() {
                   <div style={{ margin: '4px 2px 8px', border: '1px solid var(--border-color)', background: 'var(--bg-tertiary)', borderRadius: 13, padding: '10px 10px 8px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '0 4px 6px' }}>
                       <span className="ms fill" style={{ fontSize: 16, color: 'var(--ch-amber)' }}>local_fire_department</span>
-                      <span className="disp" style={{ fontWeight: 700, fontSize: 11, letterSpacing: '.7px', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>Trending</span>
+                      <span className="disp" style={{ fontWeight: 700, fontSize: 11, letterSpacing: '.7px', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>{t('channels.trending')}</span>
                     </div>
                     {channels.filter(c => !c.name.startsWith('dm-')).slice(0, 3).map((ch, i) => (
                       <button key={ch.id} onClick={() => { setActiveChannel(ch); setSearchQuery(''); }}
@@ -495,7 +497,7 @@ export default function Channels() {
                       >
                         <span className="disp" style={{ fontWeight: 800, fontSize: 12, color: 'var(--text-muted)', width: 14, textAlign: 'center' }}>{i + 1}</span>
                         <span className="disp" style={{ fontWeight: 600, fontSize: 14, color: activeChannel?.id === ch.id ? 'var(--ch-brand)' : 'var(--text-primary)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {displayName(ch)}
+                          {displayName(ch, t)}
                         </span>
                         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2, color: 'var(--ch-amber)', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>
                           <span className="ms fill" style={{ fontSize: 13 }}>local_fire_department</span>
@@ -538,7 +540,7 @@ export default function Channels() {
                               <span className="ms" style={{ fontSize: 17, color: isAct ? 'var(--ch-brand)' : 'var(--text-muted)', flexShrink: 0 }}>{chanIcon(ch.name)}</span>
                               <div style={{ flex: 1, minWidth: 0, lineHeight: 1.2 }}>
                                 <span className="disp" style={{ fontWeight: isAct ? 700 : 600, fontSize: 14.5, color: isAct ? 'var(--ch-brand)' : 'var(--text-primary)', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                  {displayName(ch)}
+                                  {displayName(ch, t)}
                                 </span>
                                 {ch.description && (
                                   <span style={{ display: 'block', fontSize: 11.5, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -558,7 +560,7 @@ export default function Channels() {
                 ))}
 
                 {visibleChannels.length === 0 && !loading && (
-                  <p style={{ color: 'var(--text-muted)', fontSize: 13, padding: '8px 12px' }}>Keine Channels gefunden.</p>
+                  <p style={{ color: 'var(--text-muted)', fontSize: 13, padding: '8px 12px' }}>{t('channels.no_channels')}</p>
                 )}
               </>
             )}
@@ -585,7 +587,7 @@ export default function Channels() {
                   </span>
                   {isUni && (
                     <span style={{ height: 20, padding: '0 8px', borderRadius: 6, background: 'var(--ch-blue-tint)', color: 'var(--ch-blue)', fontSize: 11, fontWeight: 700, display: 'inline-flex', alignItems: 'center', letterSpacing: '.3px' }}>
-                      HOCHSCHULE
+                      {t('channels.badge_university')}
                     </span>
                   )}
                 </div>
@@ -610,8 +612,8 @@ export default function Channels() {
             {/* Tabs */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 2, marginTop: 12 }}>
               {[
-                { id: 'chat', icon: 'forum', label: 'Chat' },
-                { id: 'members', icon: 'group', label: 'Mitglieder' },
+                { id: 'chat', icon: 'forum', label: t('channels.tab_chat') },
+                { id: 'members', icon: 'group', label: t('channels.tab_members') },
               ].map(t => (
                 <button key={t.id} onClick={() => setActiveTab(t.id)}
                   className="ch-tab"
@@ -635,12 +637,12 @@ export default function Channels() {
           {showAdminMenu && isAdmin && (
             <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 8, padding: '10px 18px', background: 'var(--ch-brand-tint)', borderBottom: '1px solid var(--border-color)', animation: 'ch-fadeUp .18s', flexWrap: 'wrap' }}>
               <span className="ms fill" style={{ fontSize: 17, color: 'var(--ch-brand)' }}>shield</span>
-              <span className="disp" style={{ fontWeight: 700, fontSize: 13, color: 'var(--ch-brand)', marginRight: 4 }}>Verwaltung</span>
+              <span className="disp" style={{ fontWeight: 700, fontSize: 13, color: 'var(--ch-brand)', marginRight: 4 }}>{t('channels.admin_manage')}</span>
               {[
-                { icon: 'edit', label: 'Bearbeiten' },
-                { icon: 'group_add', label: 'Mitglieder' },
-                { icon: 'push_pin', label: 'Pinnwand' },
-                { icon: 'archive', label: 'Archivieren' },
+                { icon: 'edit', label: t('channels.admin_edit') },
+                { icon: 'group_add', label: t('channels.tab_members') },
+                { icon: 'push_pin', label: t('channels.admin_pin') },
+                { icon: 'archive', label: t('channels.admin_archive') },
               ].map(a => (
                 <button key={a.label}
                   className="ch-admin-action"
@@ -662,7 +664,7 @@ export default function Channels() {
                       style={{ display: 'inline-flex', alignItems: 'center', gap: 6, height: 32, padding: '0 14px', borderRadius: 9, border: '1px solid var(--border-color)', background: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
                     >
                       <span className="ms" style={{ fontSize: 16 }}>expand_less</span>
-                      {loadingMore ? 'Laden…' : 'Ältere Nachrichten'}
+                      {loadingMore ? t('channels.loading') : t('channels.btn_load_more')}
                     </button>
                   </div>
                 )}
@@ -673,10 +675,10 @@ export default function Channels() {
                       <span className="ms fill" style={{ fontSize: 36, color: activeIconColor }}>{activeIcon}</span>
                     </div>
                     <div className="disp" style={{ fontWeight: 700, fontSize: 22, color: 'var(--text-primary)' }}>
-                      Willkommen in #{activeName}
+                      {t('channels.welcome_to')}{activeName}
                     </div>
                     <div style={{ fontSize: 14.5, color: 'var(--text-secondary)', maxWidth: 340, marginTop: 8, lineHeight: 1.5 }}>
-                      {activeChannel?.description || 'Sei die erste Person, die hier etwas schreibt.'}
+                      {activeChannel?.description || t('channels.welcome_desc')}
                     </div>
                     <button onClick={() => composerRef.current?.focus()}
                       style={{ marginTop: 18, height: 42, padding: '0 20px', borderRadius: 11, border: 'none', background: 'var(--ch-brand)', color: '#fff', fontWeight: 700, fontSize: 15, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8, fontFamily: 'inherit' }}
@@ -684,7 +686,7 @@ export default function Channels() {
                       onMouseOut={e => e.currentTarget.style.background = 'var(--ch-brand)'}
                     >
                       <span className="ms" style={{ fontSize: 18 }}>edit</span>
-                      <span className="disp">Erste Nachricht schreiben</span>
+                      <span className="disp">{t('channels.btn_write_first')}</span>
                     </button>
                   </div>
                 )}
@@ -693,7 +695,7 @@ export default function Channels() {
                 {messages.length > 0 && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 22px 6px' }}>
                     <div style={{ flex: 1, height: 1, background: 'var(--border-color)' }} />
-                    <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '.4px' }}>Heute</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '.4px' }}>{t('channels.today')}</span>
                     <div style={{ flex: 1, height: 1, background: 'var(--border-color)' }} />
                   </div>
                 )}
@@ -743,12 +745,12 @@ export default function Channels() {
                           </span>
                           {isSpecialist && (
                             <span style={{ height: 17, padding: '0 7px', borderRadius: 5, background: 'var(--ch-brand-tint)', color: 'var(--ch-brand)', fontSize: 10.5, fontWeight: 700, display: 'inline-flex', alignItems: 'center', fontFamily: "'Barlow Semi Condensed', sans-serif" }}>
-                              WE Specialist
+                              {t('channels.badge_specialist')}
                             </span>
                           )}
                           {isAdminRole && (
                             <span style={{ height: 17, padding: '0 7px', borderRadius: 5, background: 'rgba(226,0,26,.08)', color: 'var(--ch-brand)', fontSize: 10.5, fontWeight: 700, display: 'inline-flex', alignItems: 'center', fontFamily: "'Barlow Semi Condensed', sans-serif" }}>
-                              Admin
+                              {t('channels.badge_admin')}
                             </span>
                           )}
                           <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{time}</span>

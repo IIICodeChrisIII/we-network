@@ -3,6 +3,7 @@ import { ShoppingBag, Star, Sparkles, AlertCircle, CheckCircle } from 'lucide-re
 import NodeBalance from '../components/NodeBalance';
 import AIAssistant from '../components/AIAssistant';
 import { supabase } from '../lib/supabase';
+import { useTranslation } from 'react-i18next';
 
 const MOCK_REWARDS = [
   {
@@ -112,6 +113,7 @@ export default function RewardStore() {
   const [selectedReward, setSelectedReward] = useState(null);
   const [checkoutMode, setCheckoutMode] = useState(null); // 'euro' or 'nodes'
   const [checkoutStatus, setCheckoutStatus] = useState(null);
+  const { t } = useTranslation();
 
   React.useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
@@ -145,9 +147,9 @@ export default function RewardStore() {
         <div>
           <h1 className="page-title" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <ShoppingBag size={32} color="var(--accent-red)" />
-            Produkte
+            {t('rewards.title')}
           </h1>
-          <p className="page-description">Löse deine verdienten WE-Nodes gegen exklusive Würth-Hardware ein.</p>
+          <p className="page-description">{t('rewards.description')}</p>
         </div>
         <NodeBalance userId={user?.id} />
       </div>
@@ -159,7 +161,7 @@ export default function RewardStore() {
               <img src={reward.image} alt={reward.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               <div style={{ position: 'absolute', top: '12px', right: '12px', background: 'var(--bg-glass)', backdropFilter: 'blur(4px)', padding: '4px 12px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--text-primary)', display: 'flex', gap: '4px', alignItems: 'center' }}>
                 <Star size={14} color="var(--accent-red)" fill="var(--accent-red)" />
-                Tier {reward.tier}
+                {t('rewards.tier')} {reward.tier}
               </div>
             </div>
             
@@ -179,21 +181,21 @@ export default function RewardStore() {
                     style={{ padding: '8px 16px', fontSize: '0.9rem' }}
                     onClick={() => openCheckout(reward, 'euro')}
                   >
-                    In den Warenkorb
+                    {t('rewards.add_to_cart')}
                   </button>
                 </div>
                 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', background: 'rgba(226, 0, 26, 0.05)', borderRadius: '8px', border: '1px dashed var(--accent-red)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--accent-red)', fontWeight: '600', fontSize: '0.9rem' }}>
                     <Sparkles size={16} />
-                    Oder gratis mit Nodes
+                    {t('rewards.or_free_with_nodes')}
                   </div>
                   <button 
                     className="btn btn-secondary" 
                     style={{ padding: '6px 12px', fontSize: '0.85rem', borderColor: 'var(--accent-red)', color: 'var(--accent-red)' }}
                     onClick={() => openCheckout(reward, 'nodes')}
                   >
-                    {reward.price} Nodes
+                    {reward.price} {t('rewards.nodes')}
                   </button>
                 </div>
               </div>
@@ -209,31 +211,31 @@ export default function RewardStore() {
             {checkoutStatus === 'success' ? (
               <div style={{ animation: 'fadeIn 0.5s ease-out' }}>
                 <CheckCircle size={48} color="var(--accent-green)" style={{ margin: '0 auto 16px' }} />
-                <h3 style={{ fontSize: '1.4rem', marginBottom: '8px' }}>Bestellung bestätigt!</h3>
-                <p style={{ color: 'var(--text-secondary)' }}>Dein {selectedReward.name} macht sich bald auf den Weg. Eine Bestätigung wurde an den Würth-Versand geschickt.</p>
+                <h3 style={{ fontSize: '1.4rem', marginBottom: '8px' }}>{t('rewards.order_confirmed')}</h3>
+                <p style={{ color: 'var(--text-secondary)' }}>{t('rewards.order_desc').replace('{{name}}', selectedReward.name)}</p>
               </div>
             ) : checkoutStatus === 'processing' ? (
               <div>
                 <div style={{ width: '40px', height: '40px', border: '3px solid var(--border-color)', borderTopColor: 'var(--accent-red)', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }} />
-                <p>Verarbeite Transaktion...</p>
+                <p>{t('rewards.processing')}</p>
               </div>
             ) : (
               <div>
                 <AlertCircle size={48} color={checkoutMode === 'nodes' ? "var(--accent-red)" : "var(--text-primary)"} style={{ margin: '0 auto 16px' }} />
                 <h3 style={{ fontSize: '1.4rem', marginBottom: '16px' }}>
-                  {checkoutMode === 'nodes' ? 'Mit WE-Nodes bezahlen' : 'Kaufvorgang abschließen'}
+                  {checkoutMode === 'nodes' ? t('rewards.pay_with_nodes') : t('rewards.complete_purchase')}
                 </h3>
                 <p style={{ color: 'var(--text-secondary)', marginBottom: '24px' }}>
                   {checkoutMode === 'nodes' ? (
-                    <>Möchtest du <strong>{selectedReward.price} WE-Nodes</strong> für "{selectedReward.name}" einlösen?</>
+                    <>{t('rewards.confirm_nodes')} <strong>{selectedReward.price} WE-{t('rewards.nodes')}</strong> {t('rewards.for')} "{selectedReward.name}" {t('rewards.redeem')}</>
                   ) : (
-                    <>Möchtest du "{selectedReward.name}" für <strong>€{selectedReward.euroPrice.toFixed(2)}</strong> kaufen?</>
+                    <>{t('rewards.confirm_buy')} "{selectedReward.name}" {t('rewards.for')} <strong>€{selectedReward.euroPrice.toFixed(2)}</strong> {t('rewards.buy')}</>
                   )}
                 </p>
                 <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-                  <button className="btn btn-secondary" onClick={() => { setSelectedReward(null); setCheckoutMode(null); }}>Abbrechen</button>
+                  <button className="btn btn-secondary" onClick={() => { setSelectedReward(null); setCheckoutMode(null); }}>{t('rewards.cancel')}</button>
                   <button className="btn btn-primary" onClick={() => handleCheckout(selectedReward)}>
-                    {checkoutMode === 'nodes' ? 'Jetzt einlösen' : 'Kaufen'}
+                    {checkoutMode === 'nodes' ? t('rewards.redeem_now') : t('rewards.buy_now')}
                   </button>
                 </div>
               </div>

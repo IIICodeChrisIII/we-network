@@ -1,35 +1,37 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MessageCircle, X, Send, Bot, Sparkles } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
-const MOCK_RESPONSES = [
+const MOCK_RESPONSES = (t) => [
   {
     keywords: ['sensor', 'messen', 'feuchtigkeit', 'temperatur', 'druck'],
-    text: 'Wenn du Sensordaten erfassen willst, empfehle ich dir das **FeatherWing Sensor-Shield** aus unserem Store. Es lässt sich leicht über I2C ansteuern. Schau es dir mal in den Produkten an!'
+    text: t('ai.msg_sensor')
   },
   {
     keywords: ['spannung', 'strom', 'power', 'netzteil', 'dc', 'wandler'],
-    text: 'Für ein stabiles Power-Management ist das **MagI³C Power-Module Kit** perfekt. Damit kannst du extrem effiziente und kompakte DC/DC-Wandler für dein Board designen.'
+    text: t('ai.msg_power')
   },
   {
     keywords: ['led', 'licht', 'anzeige', 'blinken'],
-    text: 'Brauchst du Statusanzeigen? Nimm am besten unsere **WL-SMDC Waterclear LEDs**. Sie sind sehr hell, robust und lassen sich super auf eigene Platinen löten.'
+    text: t('ai.msg_led')
   },
   {
     keywords: ['spule', 'induktivität', 'filter', 'hf', 'frequenz'],
-    text: 'Für gute Filter-Eigenschaften oder Schaltregler brauchst du ordentliche Spulen. Ich empfehle die **WE-MAPI SMD Power Inductor** Serie für kompakte Designs oder die **WE-CAIR Luftspule** für Hochfrequenz-Anwendungen.'
+    text: t('ai.msg_coil')
   },
   {
-    keywords: ['hallo', 'hi', 'hey', 'moin', 'servus'],
-    text: 'Hallo! Ich bin dein persönlicher Hardware-Assistent. Erzähl mir von deinem Projekt und ich gebe dir Tipps zu Bauteilen und Architektur!'
+    keywords: ['hallo', 'hi', 'hey', 'moin', 'servus', 'hello'],
+    text: t('ai.msg_hello')
   }
 ];
 
-const DEFAULT_RESPONSE = 'Das klingt nach einem spannenden Projekt! Hast du schon überlegt, welche Anforderungen du an den Stromverbrauch oder die Baugröße (Formfaktor) hast? Sag mir Bescheid, wenn du spezifische Bauteile wie Kondensatoren, Spulen oder Sensoren suchst.';
+const DEFAULT_RESPONSE = (t) => t('ai.msg_default');
 
 export default function AIAssistant() {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { role: 'ai', text: 'Hi! Planst du ein neues Hardware-Projekt? Frag mich nach Tipps oder passenden Bauteilen!' }
+    { role: 'ai', text: t('ai.msg_welcome') }
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -58,11 +60,11 @@ export default function AIAssistant() {
     const delay = Math.floor(Math.random() * 1000) + 1500;
     
     setTimeout(() => {
-      let responseText = DEFAULT_RESPONSE;
+      let responseText = DEFAULT_RESPONSE(t);
       const lowerInput = userText.toLowerCase();
       
       // Find matching mock response
-      for (const rule of MOCK_RESPONSES) {
+      for (const rule of MOCK_RESPONSES(t)) {
         if (rule.keywords.some(kw => lowerInput.includes(kw))) {
           responseText = rule.text;
           break;
@@ -129,10 +131,10 @@ export default function AIAssistant() {
               <Bot size={18} />
             </div>
             <div>
-              <h3 style={{ fontSize: '1rem', margin: 0, color: 'var(--text-primary)' }}>Hardware AI</h3>
+              <h3 style={{ fontSize: '1rem', margin: 0, color: 'var(--text-primary)' }}>{t('ai.title')}</h3>
               <p style={{ fontSize: '0.8rem', color: 'var(--accent-green)', margin: 0, display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <span style={{ width: '8px', height: '8px', background: 'var(--accent-green)', borderRadius: '50%', display: 'inline-block' }}></span>
-                Online
+                {t('ai.online')}
               </p>
             </div>
           </div>
@@ -202,7 +204,7 @@ export default function AIAssistant() {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Frag mich nach Hardware-Tipps..."
+              placeholder={t('ai.placeholder')}
               style={{
                 flex: 1,
                 background: 'var(--bg-primary)',

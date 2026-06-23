@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { X, Info } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const HackathonDisclaimer = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const isDismissed = localStorage.getItem('hackathonDisclaimerDismissed');
@@ -51,11 +53,10 @@ const HackathonDisclaimer = () => {
       </div>
       <div style={{ flex: 1 }}>
         <h4 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: 'bold', color: 'var(--text-primary)' }}>
-          TUM Science Hackathon 2026
+          {t('hackathon.title')}
         </h4>
         <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
-          This application was built as a prototype during the TUM Science Hackathon 2026. 
-          Our team's objective was to create a networking platform for Würth Elektronik to connect and engage with students.
+          {t('hackathon.desc')}
         </p>
       </div>
       <button 
@@ -74,7 +75,7 @@ const HackathonDisclaimer = () => {
         }}
         onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)'}
         onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-        aria-label="Close disclaimer"
+        aria-label={t('hackathon.close')}
       >
         <X size={20} />
       </button>

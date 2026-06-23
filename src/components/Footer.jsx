@@ -1,13 +1,14 @@
 import React from 'react';
 import weLogo from '../assets/we-logo.gif';
+import { useTranslation } from 'react-i18next';
 
 const WE = 'https://www.we-online.com/de';
 
-const columns = [
-  { title: 'Produkte & mehr', links: ['Bauelemente', 'Leiterplatten', 'Steuerungssysteme', 'Newsletter'] },
-  { title: 'Interessantes', links: ['Nachhaltigkeit', 'Unternehmen', 'Newscenter', 'Events'] },
-  { title: 'Wichtiges', links: ['Support', 'Qualität', 'Geschäftsbedingungen', 'Compliance'] },
-  { title: 'Karriere', links: ['Karrierebereich', 'Jobangebote', 'Würth Elektronik als Arbeitgeber'] },
+const getColumns = (t) => [
+  { title: t('footer.col1_title'), links: t('footer.col1_links', { returnObjects: true }) },
+  { title: t('footer.col2_title'), links: t('footer.col2_links', { returnObjects: true }) },
+  { title: t('footer.col3_title'), links: t('footer.col3_links', { returnObjects: true }) },
+  { title: t('footer.col4_title'), links: t('footer.col4_links', { returnObjects: true }) },
 ];
 
 const socials = [
@@ -21,6 +22,9 @@ const socials = [
 ];
 
 export default function Footer() {
+  const { t } = useTranslation();
+  const columns = getColumns(t);
+  
   return (
     <footer className="site-footer">
       <div className="site-footer-inner">
@@ -32,10 +36,10 @@ export default function Footer() {
           {columns.map((col) => (
             <div className="footer-col" key={col.title}>
               <h4>{col.title}</h4>
-              {col.links.map((l) => (
+              {Array.isArray(col.links) && col.links.map((l) => (
                 <a className="footer-link" href={WE} target="_blank" rel="noopener noreferrer" key={l}>{l}</a>
               ))}
-              {col.title === 'Karriere' && (
+              {col.title === t('footer.col4_title') && (
                 <div className="footer-social">
                   {socials.map((s) => (
                     <a className="footer-social-link" key={s.name} aria-label={s.name} title={s.name}>
@@ -51,17 +55,15 @@ export default function Footer() {
         </div>
 
         <p className="footer-legal">
-          Verkauf nur an Unternehmer, Gewerbetreibende, Freiberufler und öffentliche Institutionen,
-          nicht jedoch an Verbraucher im Sinne des § 13 BGB. Alle Preise in Euro zzgl. gesetzl. MwSt.
-          Angebote freibleibend.
+          {t('footer.legal')}
         </p>
 
         <div className="footer-bottom">
           <div className="footer-bottom-links">
-            <a className="footer-link" href={WE} target="_blank" rel="noopener noreferrer">Kontakt</a>
-            <a className="footer-link" href={`${WE}/impressum`} target="_blank" rel="noopener noreferrer">Impressum</a>
-            <a className="footer-link" href={`${WE}/datenschutz`} target="_blank" rel="noopener noreferrer">Datenschutz</a>
-            <a className="footer-link" href={WE} target="_blank" rel="noopener noreferrer">Cookies</a>
+            <a className="footer-link" href={WE} target="_blank" rel="noopener noreferrer">{t('footer.contact')}</a>
+            <a className="footer-link" href={`${WE}/impressum`} target="_blank" rel="noopener noreferrer">{t('footer.imprint')}</a>
+            <a className="footer-link" href={`${WE}/datenschutz`} target="_blank" rel="noopener noreferrer">{t('footer.privacy')}</a>
+            <a className="footer-link" href={WE} target="_blank" rel="noopener noreferrer">{t('footer.cookies')}</a>
           </div>
           <div className="footer-copy">© 2026 Würth Elektronik eiSos GmbH &amp; Co. KG, Deutschland</div>
         </div>

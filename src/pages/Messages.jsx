@@ -1,15 +1,20 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { Send, Search, MessageSquare, ChevronLeft, GraduationCap, BookOpen } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
 import { findUniversity, getLogoUrl } from '../lib/universities';
 
 const MESSAGES_LIMIT = 100;
 const POLL_INTERVAL_MS = 2000;
 
-const STATUS_LABEL = {
-  student: 'Student', intern: 'Intern',
-  working_student: 'Working Student', employee: 'Employee',
+// We'll move STATUS_LABEL inside the component or pass t to it
+const getStatusLabel = (status, t) => {
+  const labels = {
+    student: t('messages.student'), intern: t('messages.intern'),
+    working_student: t('messages.working_student'), employee: t('messages.employee'),
+  };
+  return labels[status] || status;
 };
 
 function Avatar({ profile, size = 40 }) {
@@ -27,15 +32,15 @@ function Avatar({ profile, size = 40 }) {
   );
 }
 
-function timeLabel(iso) {
+function timeLabel(iso, t) {
   if (!iso) return '';
   const d = new Date(iso);
   const now = new Date();
   const diff = now - d;
-  if (diff < 60000) return 'Jetzt';
-  if (diff < 3600000) return `${Math.floor(diff / 60000)}m`;
-  if (diff < 86400000) return d.toLocaleTimeString('de', { hour: '2-digit', minute: '2-digit' });
-  return d.toLocaleDateString('de', { day: '2-digit', month: 'short' });
+  if (diff < 60000) return t('messages.now');
+  if (diff < 3600000) return `${Math.floor(diff / 60000)}${t('messages.min_ago')}`;
+  // Use user's locale roughly
+  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
 export default function Messages() {
@@ -57,6 +62,7 @@ export default function Messages() {
   const pollingRef = useRef(null);
   const subscriptionRef = useRef(null);
   const isInitialized = useRef(false);
+  const { t } = useTranslation();
 
   // ── Init ──────────────────────────────────────────────────
   useEffect(() => {
@@ -180,7 +186,7 @@ export default function Messages() {
         .single();
 
       if (error || !created) {
-        alert('Konnte DM nicht erstellen. Supabase INSERT-Policy für DM-Channels prüfen.');
+        alert(t('messages.err_create_dm'));
         return;
       }
       channel = created;
@@ -308,7 +314,7 @@ export default function Messages() {
   // ── Render ────────────────────────────────────────────────
   if (loading) return (
     <div className="page-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <p style={{ color: 'var(--text-muted)' }}>Laden...</p>
+      <p style={{ color: 'var(--text-muted)' }}>{t('messages.loading')}</p>
     </div>
   );
 
@@ -324,13 +330,13 @@ export default function Messages() {
         {/* Header */}
         <div style={{ padding: '20px 18px 12px', borderBottom: '1px solid var(--border-color)' }}>
           <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '12px' }}>
-            Nachrichten
+            {t('messages.title')}
           </h2>
           <div style={{ position: 'relative' }}>
             <Search size={14} style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
             <input
               type="text"
-              placeholder="Suchen..."
+              placeholder={t('messages.search')}
               value={convSearch}
               onChange={e => setConvSearch(e.target.value)}
               className="input-field"
@@ -345,7 +351,7 @@ export default function Messages() {
             <div style={{ padding: '32px 18px', textAlign: 'center' }}>
               <MessageSquare size={28} style={{ color: 'var(--text-muted)', marginBottom: '10px', opacity: 0.5 }} />
               <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                {conversations.length === 0 ? 'Noch keine Konversationen' : 'Keine Treffer'}
+                {conversations.length === 0 ? t('messages.no_conversations') : t('messages.no_results')}
               </p>
             </div>
           )}
@@ -376,14 +382,14 @@ export default function Messages() {
                     </span>
                     {conv.lastMsg && (
                       <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', flexShrink: 0, marginLeft: '6px' }}>
-                        {timeLabel(conv.lastMsg.created_at)}
+                        {timeLabel(conv.lastMsg.created_at, t)}
                       </span>
                     )}
                   </div>
                   <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {conv.lastMsg
-                      ? `${isMine ? 'Du: ' : ''}${conv.lastMsg.content}`
-                      : <span style={{ fontStyle: 'italic' }}>Konversation starten</span>
+                      ? `${isMine ? t('messages.you_prefix') : ''}${conv.lastMsg.content}`
+                      : <span style={{ fontStyle: 'italic' }}>{t('messages.start_conversation')}</span>
                     }
                   </p>
                 </div>
@@ -410,11 +416,11 @@ export default function Messages() {
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '2px' }}>
                 {activeConv.otherProfile?.role === 'specialist' && (
-                  <span className="badge badge-red" style={{ fontSize: '0.7rem' }}>Specialist</span>
+                  <span className="badge badge-red" style={{ fontSize: '0.7rem' }}>{t('messages.specialist')}</span>
                 )}
                 {activeConv.otherProfile?.status && (
                   <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                    {STATUS_LABEL[activeConv.otherProfile.status] || activeConv.otherProfile.status}
+                    {getStatusLabel(activeConv.otherProfile.status, t)}
                   </span>
                 )}
                 {activeConv.otherProfile?.university && (
@@ -429,12 +435,12 @@ export default function Messages() {
           {/* Messages */}
           <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
             {loadingMessages ? (
-              <p style={{ color: 'var(--text-muted)', textAlign: 'center', marginTop: '40px' }}>Laden...</p>
+              <p style={{ color: 'var(--text-muted)', textAlign: 'center', marginTop: '40px' }}>{t('messages.loading')}</p>
             ) : messages.length === 0 ? (
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px', opacity: 0.6 }}>
                 <Avatar profile={activeConv.otherProfile} size={56} />
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', textAlign: 'center' }}>
-                  Starte eine Konversation mit <strong style={{ color: 'var(--text-secondary)' }}>{activeConv.otherProfile?.first_name}</strong>
+                  {t('messages.start_with')} <strong style={{ color: 'var(--text-secondary)' }}>{activeConv.otherProfile?.first_name}</strong>
                 </p>
               </div>
             ) : (
@@ -466,8 +472,8 @@ export default function Messages() {
                       <div style={{ maxWidth: '65%', display: 'flex', flexDirection: 'column', alignItems: isMine ? 'flex-end' : 'flex-start', gap: '2px' }}>
                         {!compact && (
                           <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '2px', paddingLeft: isMine ? 0 : '4px', paddingRight: isMine ? '4px' : 0 }}>
-                            {isMine ? 'Du' : `${msg.profiles?.first_name || ''} ${msg.profiles?.last_name || ''}`.trim()}
-                            {' · '}{new Date(msg.created_at).toLocaleTimeString('de', { hour: '2-digit', minute: '2-digit' })}
+                            {isMine ? t('messages.you') : `${msg.profiles?.first_name || ''} ${msg.profiles?.last_name || ''}`.trim()}
+                            {' · '}{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
                         )}
                         <div style={{
@@ -499,7 +505,7 @@ export default function Messages() {
             <input
               type="text"
               className="input-field"
-              placeholder={`Nachricht an ${activeConv.otherProfile?.first_name || ''}...`}
+              placeholder={`${t('messages.msg_to')} ${activeConv.otherProfile?.first_name || ''}...`}
               value={newMessage}
               onChange={e => setNewMessage(e.target.value)}
               style={{ flex: 1 }}
@@ -518,8 +524,8 @@ export default function Messages() {
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px', opacity: 0.55 }}>
           <MessageSquare size={48} style={{ color: 'var(--text-muted)' }} />
           <div style={{ textAlign: 'center' }}>
-            <p style={{ color: 'var(--text-primary)', fontWeight: 600, marginBottom: '6px' }}>Keine Konversation ausgewählt</p>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Wähle eine Konversation aus oder starte eine neue über ein Profil.</p>
+            <p style={{ color: 'var(--text-primary)', fontWeight: 600, marginBottom: '6px' }}>{t('messages.no_selection')}</p>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{t('messages.no_selection_desc')}</p>
           </div>
         </div>
       )}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageSquare, Mail, Award } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
 import CertificateBadges from '../components/CertificateBadges';
 
@@ -8,6 +9,7 @@ export default function Contacts() {
   const navigate = useNavigate();
   const [specialists, setSpecialists] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { t } = useTranslation();
 
   useEffect(() => {
     fetchSpecialists();
@@ -29,12 +31,12 @@ export default function Contacts() {
     <div className="page-content animate-fade-in" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <div style={{ width: '100%', maxWidth: '1200px' }}>
         <div className="page-header">
-          <h1 className="page-title">Tech Specialists</h1>
-          <p className="page-description">Connect directly with our experts for mentorship and questions.</p>
+          <h1 className="page-title">{t('contacts.title')}</h1>
+          <p className="page-description">{t('contacts.description')}</p>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
-          {loading ? <p style={{ color: 'var(--text-muted)' }}>Loading specialists...</p> : specialists.map(spec => {
+          {loading ? <p style={{ color: 'var(--text-muted)' }}>{t('contacts.loading')}</p> : specialists.map(spec => {
             const initials = `${(spec.first_name || 'S')[0]}${(spec.last_name || '')[0] || ''}`.toUpperCase();
             
             return (
@@ -47,12 +49,12 @@ export default function Contacts() {
                 <span className="badge badge-red" style={{ marginBottom: '16px' }}>{spec.role}</span>
                 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '28px', lineHeight: '1.5' }}>
-                  <Award size={16} className="text-accent" /> {spec.bio || 'Tech Specialist'}
+                  <Award size={16} className="text-accent" /> {spec.bio || t('contacts.fallback_bio')}
                 </div>
 
                 <div style={{ display: 'flex', gap: '12px', width: '100%', marginTop: 'auto' }}>
                   <button className="btn btn-primary" style={{ flex: 1, padding: '12px' }} onClick={() => navigate(`/messages?with=${spec.id}`)}>
-                    <MessageSquare size={16} /> Message
+                    <MessageSquare size={16} /> {t('contacts.btn_message')}
                   </button>
                   <button className="btn btn-secondary" style={{ padding: '12px', borderRadius: 'var(--border-radius-pill)' }}>
                     <Mail size={18} />

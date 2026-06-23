@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ThumbsUp, MessageSquare, Share2, Calendar, Send, Zap } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
 import { triggerRewardEvent } from '../lib/rewardEvents';
 import CertificateBadges from '../components/CertificateBadges';
@@ -14,6 +15,7 @@ export default function News() {
   const [currentUserProfile, setCurrentUserProfile] = useState(null);
   const [expandedPost, setExpandedPost] = useState(null);
   const [commentInputs, setCommentInputs] = useState({});
+  const { t } = useTranslation();
 
   useEffect(() => {
     fetchUserProfile();
@@ -69,7 +71,7 @@ export default function News() {
   const handlePost = async () => {
     if (!newTitle.trim() || !newContent.trim()) return;
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return alert("Log in to post");
+    if (!user) return alert(t('news.login_to_post'));
 
     const postData = { 
       title: newTitle, 
@@ -95,7 +97,7 @@ export default function News() {
     if (!text || !text.trim()) return;
 
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return alert("Log in to comment");
+    if (!user) return alert(t('news.login_to_comment'));
 
     // Optimistic UI for comments
     const optimisticComment = {
@@ -127,7 +129,7 @@ export default function News() {
         triggerRewardEvent('challenge_solved', { userId: user.id, challengeId: postId });
       }
     } else {
-      alert("Error posting comment. Did you run the SQL script?");
+      alert(t('news.error_comment'));
     }
   };
 
@@ -155,8 +157,8 @@ export default function News() {
     <div className="page-content animate-fade-in" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <div style={{ width: '100%', maxWidth: '800px' }}>
         <div className="page-header">
-          <h1 className="page-title">Community Feed</h1>
-          <p className="page-description">The latest updates, events, and discussions from the network.</p>
+          <h1 className="page-title">{t('news.title')}</h1>
+          <p className="page-description">{t('news.description')}</p>
         </div>
 
         {/* Create Post Input - Hidden for students */}
@@ -166,14 +168,14 @@ export default function News() {
               <input 
                 type="text" 
                 className="input-field" 
-                placeholder="What's on your mind?" 
+                placeholder={t('news.placeholder_title')} 
                 value={newTitle}
                 onChange={e => setNewTitle(e.target.value)}
                 style={{ marginBottom: '12px', fontSize: '1.1rem', fontWeight: 500, background: 'transparent', border: 'none', borderBottom: '1px solid var(--border-color)', borderRadius: 0, paddingLeft: 0, paddingRight: 0 }}
               />
               <textarea 
                 className="input-field" 
-                placeholder="Add details..." 
+                placeholder={t('news.placeholder_details')} 
                 value={newContent}
                 onChange={e => setNewContent(e.target.value)}
                 rows="2"
@@ -182,16 +184,16 @@ export default function News() {
             </div>
             <div className="flex-between">
               <button className="btn btn-secondary" style={{ borderRadius: 'var(--border-radius-pill)' }}>
-                <Calendar size={16} /> Event
+                <Calendar size={16} /> {t('news.btn_event')}
               </button>
-              <button className="btn btn-primary" onClick={handlePost}>Post</button>
+              <button className="btn btn-primary" onClick={handlePost}>{t('news.btn_post')}</button>
             </div>
           </div>
         )}
 
         {/* Feed */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          {loading ? <p style={{ color: 'var(--text-muted)' }}>Loading posts...</p> : posts.map(post => {
+          {loading ? <p style={{ color: 'var(--text-muted)' }}>{t('news.loading')}</p> : posts.map(post => {
             const isExpanded = expandedPost === post.id;
             const commentsCount = post.comments?.length || 0;
 
@@ -200,7 +202,7 @@ export default function News() {
                 {post.type === 'challenge' && (
                   <div style={{ position: 'absolute', top: '-12px', left: '20px', background: 'var(--accent-red)', color: '#fff', padding: '4px 12px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px', boxShadow: '0 4px 12px rgba(226, 0, 26, 0.3)' }}>
                     <Zap size={14} fill="#fff" />
-                    TECH CHALLENGE — Lösen für 50 WE-Nodes!
+                    {t('news.tech_challenge')}
                   </div>
                 )}
                 
@@ -211,7 +213,7 @@ export default function News() {
                       <CertificateBadges profile={post.profiles} max={3} />
                       <h3 style={{ fontSize: '1.05rem', fontWeight: 600 }}>{post.profiles?.first_name || 'User'} {post.profiles?.last_name || ''}</h3>
                       <span className={`badge ${post.profiles?.role === 'startup' ? 'badge-green' : (post.profiles?.status === 'employee' ? 'badge-red' : 'badge-blue')}`}>
-                        {post.profiles?.role === 'startup' ? 'Startup' : (post.profiles?.status === 'employee' ? 'Mitarbeiter' : (post.profiles?.status || 'Student'))}
+                        {post.profiles?.role === 'startup' ? 'Startup' : (post.profiles?.status === 'employee' ? t('news.role_employee') : (post.profiles?.status || t('news.role_student')))}
                       </span>
                     </div>
                     <span className="text-secondary" style={{ fontSize: '0.85rem' }}>
@@ -219,7 +221,7 @@ export default function News() {
                     </span>
                   </div>
                   {post.type === 'event' && (
-                    <span className="badge badge-red" style={{ marginLeft: 'auto' }}>Event</span>
+                    <span className="badge badge-red" style={{ marginLeft: 'auto' }}>{t('news.badge_event')}</span>
                   )}
                 </div>
                 
@@ -239,10 +241,10 @@ export default function News() {
                     onMouseOver={e => e.currentTarget.style.color = isExpanded ? 'var(--accent-red)' : 'var(--text-primary)'} 
                     onMouseOut={e => e.currentTarget.style.color = isExpanded ? 'var(--accent-red)' : 'var(--text-secondary)'}
                   >
-                    <MessageSquare size={18} /> {commentsCount} Comments
+                    <MessageSquare size={18} /> {commentsCount} {t('news.comments')}
                   </button>
-                  <button className="text-secondary" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.9rem', transition: 'color var(--transition-fast)' }} onClick={() => alert('Share feature coming soon!')} onMouseOver={e => e.currentTarget.style.color = 'var(--text-primary)'} onMouseOut={e => e.currentTarget.style.color = 'var(--text-secondary)'}>
-                    <Share2 size={18} /> Share
+                  <button className="text-secondary" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.9rem', transition: 'color var(--transition-fast)' }} onClick={() => alert(t('news.share_soon'))} onMouseOver={e => e.currentTarget.style.color = 'var(--text-primary)'} onMouseOut={e => e.currentTarget.style.color = 'var(--text-secondary)'}>
+                    <Share2 size={18} /> {t('news.share')}
                   </button>
                 </div>
 
@@ -252,7 +254,7 @@ export default function News() {
                     {/* Comment List */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '20px' }}>
                       {(!post.comments || post.comments.length === 0) ? (
-                        <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>No comments yet. Be the first to share your thoughts!</p>
+                        <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>{t('news.no_comments')}</p>
                       ) : (
                         post.comments.map(comment => (
                           <div key={comment.id} style={{ display: 'flex', gap: '12px' }}>
@@ -281,7 +283,7 @@ export default function News() {
                       <div style={{ flex: 1, position: 'relative' }}>
                         <input 
                           type="text" 
-                          placeholder="Write a comment..." 
+                          placeholder={t('news.write_comment')}
                           value={commentInputs[post.id] || ''}
                           onChange={(e) => setCommentInputs(prev => ({ ...prev, [post.id]: e.target.value }))}
                           onKeyDown={(e) => { if(e.key === 'Enter') handleCommentSubmit(post.id); }}

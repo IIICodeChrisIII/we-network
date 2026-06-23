@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, X, Save } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { useTranslation } from 'react-i18next';
 
 export default function StudentTalentForm({ userProfile, onSaved }) {
   const [loading, setLoading] = useState(false);
@@ -14,6 +15,7 @@ export default function StudentTalentForm({ userProfile, onSaved }) {
   });
   const [newSkill, setNewSkill] = useState({ name: '', level: 'intermediate' });
   const [newModule, setNewModule] = useState({ name: '', grade: '', semester: '' });
+  const { t } = useTranslation();
 
   useEffect(() => {
     loadTalentData();
@@ -80,7 +82,7 @@ export default function StudentTalentForm({ userProfile, onSaved }) {
       setNewSkill({ name: '', level: 'intermediate' });
     } catch (err) {
       console.error('Error adding skill:', err);
-      alert('Fehler beim Hinzufügen des Skills. Schau in die Konsole.');
+      alert(t('talent_form.err_add_skill'));
     }
   };
 
@@ -95,7 +97,7 @@ export default function StudentTalentForm({ userProfile, onSaved }) {
       setSkills(prev => prev.filter(s => s.id !== skillId));
     } catch (err) {
       console.error('Error removing skill:', err);
-      alert('Fehler beim Löschen des Skills. Schau in die Konsole.');
+      alert(t('talent_form.err_rm_skill'));
     }
   };
 
@@ -119,7 +121,7 @@ export default function StudentTalentForm({ userProfile, onSaved }) {
       setNewModule({ name: '', grade: '', semester: '' });
     } catch (err) {
       console.error('Error adding module:', err);
-      alert('Fehler beim Hinzufügen des Moduls. Schau in die Konsole.');
+      alert(t('talent_form.err_add_module'));
     }
   };
 
@@ -134,7 +136,7 @@ export default function StudentTalentForm({ userProfile, onSaved }) {
       setModules(prev => prev.filter(m => m.id !== moduleId));
     } catch (err) {
       console.error('Error removing module:', err);
-      alert('Fehler beim Löschen des Moduls. Schau in die Konsole.');
+      alert(t('talent_form.err_rm_module'));
     }
   };
 
@@ -175,15 +177,15 @@ export default function StudentTalentForm({ userProfile, onSaved }) {
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '32px' }}>
       <div className="card">
-        <h2 style={{ marginBottom: '20px', fontSize: '1.3rem', fontWeight: 600 }}>Deine Talentpool Profile</h2>
+        <h2 style={{ marginBottom: '20px', fontSize: '1.3rem', fontWeight: 600 }}>{t('talent_form.title_profile')}</h2>
 
         {/* Bio */}
         <div style={{ marginBottom: '24px' }}>
-          <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>Über dich</label>
+          <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>{t('talent_form.label_bio')}</label>
           <textarea
             value={talentProfile.bio}
             onChange={(e) => setTalentProfile({...talentProfile, bio: e.target.value})}
-            placeholder="Schreib etwas über dich, deine Interessen und Ziele..."
+            placeholder={t('talent_form.ph_bio')}
             style={{
               width: '100%',
               minHeight: '120px',
@@ -198,7 +200,7 @@ export default function StudentTalentForm({ userProfile, onSaved }) {
 
         {/* Interests */}
         <div style={{ marginBottom: '24px' }}>
-          <label style={{ display: 'block', marginBottom: '12px', fontWeight: 500 }}>Interessiert an Positionen:</label>
+          <label style={{ display: 'block', marginBottom: '12px', fontWeight: 500 }}>{t('talent_form.label_interests')}</label>
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
             {['internship', 'working_student', 'full_time'].map(type => (
               <button
@@ -215,7 +217,7 @@ export default function StudentTalentForm({ userProfile, onSaved }) {
                   transition: 'all 0.2s'
                 }}
               >
-                {type === 'internship' ? '🎓 Praktikum' : type === 'working_student' ? '💼 HiWi' : '👔 Vollzeit'}
+                {type === 'internship' ? t('talent_form.int_intern') : type === 'working_student' ? t('talent_form.int_working_student') : t('talent_form.int_full_time')}
               </button>
             ))}
           </div>
@@ -223,7 +225,7 @@ export default function StudentTalentForm({ userProfile, onSaved }) {
 
         {/* Availability */}
         <div style={{ marginBottom: '24px' }}>
-          <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>Verfügbar ab:</label>
+          <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>{t('talent_form.label_avail')}</label>
           <input
             type="date"
             value={talentProfile.availability_date}
@@ -243,13 +245,13 @@ export default function StudentTalentForm({ userProfile, onSaved }) {
           className="btn btn-primary"
           style={{ marginBottom: '24px' }}
         >
-          <Save size={18} /> Profil speichern
+          <Save size={18} /> {t('talent_form.btn_save')}
         </button>
       </div>
 
       {/* Skills */}
       <div className="card">
-        <h3 style={{ marginBottom: '20px', fontSize: '1.2rem', fontWeight: 600 }}>Deine Skills</h3>
+        <h3 style={{ marginBottom: '20px', fontSize: '1.2rem', fontWeight: 600 }}>{t('talent_form.title_skills')}</h3>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '12px', marginBottom: '24px' }}>
           {skills.map(skill => (
@@ -258,7 +260,7 @@ export default function StudentTalentForm({ userProfile, onSaved }) {
                 <strong>{skill.skill_name}</strong>
                 <br />
                 <small style={{ color: 'var(--text-muted)' }}>
-                  {skill.proficiency_level === 'beginner' ? 'Anfänger' : skill.proficiency_level === 'intermediate' ? 'Fortgeschritten' : 'Experte'}
+                  {skill.proficiency_level === 'beginner' ? t('talent_form.lvl_beginner') : skill.proficiency_level === 'intermediate' ? t('talent_form.lvl_intermediate') : t('talent_form.lvl_advanced')}
                 </small>
               </div>
               <button
@@ -279,7 +281,7 @@ export default function StudentTalentForm({ userProfile, onSaved }) {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: '12px', alignItems: 'flex-end' }}>
           <input
             type="text"
-            placeholder="Skill eingeben (z.B. Python, React, etc.)"
+            placeholder={t('talent_form.ph_skill')}
             value={newSkill.name}
             onChange={(e) => setNewSkill({...newSkill, name: e.target.value})}
             onKeyPress={(e) => e.key === 'Enter' && addSkill()}
@@ -300,19 +302,19 @@ export default function StudentTalentForm({ userProfile, onSaved }) {
               fontSize: '1rem'
             }}
           >
-            <option value="beginner">Anfänger</option>
-            <option value="intermediate">Fortgeschritten</option>
-            <option value="advanced">Experte</option>
+            <option value="beginner">{t('talent_form.lvl_beginner')}</option>
+            <option value="intermediate">{t('talent_form.lvl_intermediate')}</option>
+            <option value="advanced">{t('talent_form.lvl_advanced')}</option>
           </select>
           <button onClick={addSkill} className="btn btn-secondary" style={{ whiteSpace: 'nowrap' }}>
-            <Plus size={18} /> Hinzufügen
+            <Plus size={18} /> {t('talent_form.btn_add')}
           </button>
         </div>
       </div>
 
       {/* Modules */}
       <div className="card">
-        <h3 style={{ marginBottom: '20px', fontSize: '1.2rem', fontWeight: 600 }}>Belegte Module</h3>
+        <h3 style={{ marginBottom: '20px', fontSize: '1.2rem', fontWeight: 600 }}>{t('talent_form.title_modules')}</h3>
 
         <div style={{ marginBottom: '24px', display: 'grid', gridTemplateColumns: '1fr', gap: '12px' }}>
           {modules.map(module => (
@@ -332,8 +334,8 @@ export default function StudentTalentForm({ userProfile, onSaved }) {
                 {(module.grade || module.semester) && (
                   <br />
                 )}
-                {module.grade && <span style={{ marginRight: '12px', color: 'var(--text-muted)' }}>Note: {module.grade}</span>}
-                {module.semester && <span style={{ color: 'var(--text-muted)' }}>Semester: {module.semester}</span>}
+                {module.grade && <span style={{ marginRight: '12px', color: 'var(--text-muted)' }}>{t('talent_form.grade')} {module.grade}</span>}
+                {module.semester && <span style={{ color: 'var(--text-muted)' }}>{t('talent_form.semester')} {module.semester}</span>}
               </div>
               <button
                 onClick={() => removeModule(module.id)}
@@ -353,7 +355,7 @@ export default function StudentTalentForm({ userProfile, onSaved }) {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto auto', gap: '12px', alignItems: 'flex-end' }}>
           <input
             type="text"
-            placeholder="Modulname"
+            placeholder={t('talent_form.ph_module_name')}
             value={newModule.name}
             onChange={(e) => setNewModule({...newModule, name: e.target.value})}
             onKeyPress={(e) => e.key === 'Enter' && addModule()}
@@ -366,7 +368,7 @@ export default function StudentTalentForm({ userProfile, onSaved }) {
           />
           <input
             type="text"
-            placeholder="Note (z.B. 1.5)"
+            placeholder={t('talent_form.ph_grade')}
             value={newModule.grade}
             onChange={(e) => setNewModule({...newModule, grade: e.target.value})}
             style={{
@@ -378,7 +380,7 @@ export default function StudentTalentForm({ userProfile, onSaved }) {
           />
           <input
             type="text"
-            placeholder="Semester"
+            placeholder={t('talent_form.ph_semester')}
             value={newModule.semester}
             onChange={(e) => setNewModule({...newModule, semester: e.target.value})}
             style={{
